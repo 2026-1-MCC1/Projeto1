@@ -74,9 +74,6 @@ Criar um jogo interativo que una entretenimento e conscientização, demonstrand
 
 ## ⚙️ Instalação
 
-### 📱 Android
-- (Teremos?)
-
 ### 💻 Windows
 - Acesse a pasta executáveis/windows
 - Execute o arquivo .exe
