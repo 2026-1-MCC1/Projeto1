@@ -3,20 +3,34 @@ using UnityEngine.SceneManagement;
 
 public class MenuScrpit : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        Debug.Log("Teste do MENU");
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    
+    [SerializeField] private GameObject painelMenuInicial;
+    [SerializeField] private GameObject painelOpcoes;
+    [SerializeField] private GameObject painelCreditos;
 
     public void IniciarJogo()
     {
-        SceneManager.LoadScene(1);
+    
+    }
+    public void AbrirOpções()
+    {
+        painelMenuInicial.SetActive(false);
+        painelOpcoes.SetActive(true);
+
+    }
+    public void FecharOpções()
+    {
+        painelOpcoes.SetActive(false);
+        painelMenuInicial.SetActive(true);
+    }
+    public void AbrirCreditos()
+    {
+        painelCreditos.SetActive(true);
+        painelMenuInicial.SetActive(false);
+    }
+    public void SairCreditos()
+    {
+        painelCreditos.SetActive(false);
+        painelMenuInicial.SetActive(true);
     }
 }
