@@ -4,12 +4,12 @@
 <a href= "https://www.fecap.br/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhZPrRa89Kma0ZZogxm0pi-tCn_TLKeHGVxywp-LXAFGR3B1DPouAJYHgKZGV0XTEf4AE&usqp=CAU" alt="FECAP - Fundação de Comércio Álvares Penteado" border="0"></a>
 </p>
 
-# 🎮 Nome do Jogo: (CRIAR)
+# 🎮 Nome do Jogo: Urban Chase
 
 ## 👥 Nome do Grupo: CADD
 
 ## 👨‍💻 Integrantes  
-<a href="https://www.linkedin.com/in/andre-makoto-molitorlitor-9aa6b7358">Andre Makoto Molitor</a>, <a href="https://www.linkedin.com/in/caio-fabio-ba3943392/">Caio Fabio Freitas</a>, <a href="https://www.linkedin.com/in/davivarella/">Davi Varella</a>, <a href="https://www.linkedin.com/in/davi-moraes-675642260/">Davi Moraes</a>  
+<a href="https://www.linkedin.com/in/andre-makoto-molitorlitor-9aa6b7358">Andre Makoto Molitor</a>, <a href="https://www.linkedin.com/in/caio-fabio-ba3943392/">Caio Fabio Freitas</a>, <a href="https://www.linkedin.com/in/davivarella/">Davi Varella</a> e <a href="https://www.linkedin.com/in/davi-moraes-675642260/">Davi Moraes</a>  
 
 ## 👨‍🏫 Professores Orientadores  
 <a href="https://www.linkedin.com/in/adriano-valente-534576135/">Adriano Felix Valente</a>, <a href="https://www.linkedin.com/in/dolemes/">David de Oliveira Lemes</a>, <a href="https://www.linkedin.com/in/eduardo-savino-gomes-77833a10/">Eduardo Savino Gomes</a>, <a href="https://www.linkedin.com/in/remuniz/">Renata Muniz do Nascimento</a>, <a href="https://www.linkedin.com/in/victorbarq/">Victor Bruno Alexander Rosetti de Quiroz</a>  
@@ -17,8 +17,10 @@
 ---
 
 <p align="center">
-<img src="https://pix4free.org/assets/library/2021-01-20/originals/game.jpg" alt="NOME DO JOGO" border="0">
-  Game by <a href="http://www.nyphotographic.com/">Nick Youngson</a> <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a> <a href="http://pix4free.org/">Pix4free</a>
+<img src="/imagens/Urban_Chase.jpg" alt="Urban Chase" border="0">
+  Game by <a href="https://www.linkedin.com/in/andre-makoto-molitorlitor-9aa6b7358">Andre Makoto Molitor</a>, <a href="https://www.linkedin.com/in/caio-fabio-ba3943392/">Caio Fabio Freitas</a>, <a href="https://www.linkedin.com/in/davivarella/">Davi Varella</a> e <a href="https://www.linkedin.com/in/davi-moraes-675642260/">Davi Moraes</a>
+
+<a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>
 </p>
 
 ## 📖 Descrição
