@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MenuScrpit : MonoBehaviour
 {
@@ -12,5 +13,10 @@ public class MenuScrpit : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void IniciarJogo()
+    {
+        SceneManager.LoadScene(1);
     }
 }
