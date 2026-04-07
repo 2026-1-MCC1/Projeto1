@@ -10,7 +10,7 @@ public class MenuScrpit : MonoBehaviour
 
     public void IniciarJogo()
     {
-    
+       
     }
     public void AbrirOpções()
     {
