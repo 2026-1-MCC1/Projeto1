@@ -7,6 +7,7 @@ public class MenuScrpit : MonoBehaviour
     [SerializeField] private GameObject painelMenuInicial;
     [SerializeField] private GameObject painelOpcoes;
     [SerializeField] private GameObject painelCreditos;
+    [SerializeField] private GameObject painelGameOver;
 
     public void IniciarJogo()
     {
@@ -33,4 +34,11 @@ public class MenuScrpit : MonoBehaviour
         painelCreditos.SetActive(false);
         painelMenuInicial.SetActive(true);
     }
+
+    public void SairGameOver()
+    {
+        painelGameOver.SetActive(false);
+        painelMenuInicial.SetActive(true);
+    }
+
 }
