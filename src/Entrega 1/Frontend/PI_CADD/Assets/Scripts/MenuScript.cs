@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class MenuScrpit : MonoBehaviour
+public class MenuScript : MonoBehaviour
 {
     
     [SerializeField] private GameObject painelMenuInicial;
@@ -9,35 +9,36 @@ public class MenuScrpit : MonoBehaviour
     [SerializeField] private GameObject painelCreditos;
     [SerializeField] private GameObject painelGameOver;
 
-    // Função chamada quando o jogador clica em "Iniciar Jogo"
-    // Aqui você pode colocar o código para carregar a cena do jogo
+    // Funï¿½ï¿½o chamada quando o jogador clica em "Iniciar Jogo"
+    // Aqui vocï¿½ pode colocar o cï¿½digo para carregar a cena do jogo
     public void IniciarJogo()
     {
-       
+       painelMenuInicial.SetActive(false);
+       SceneManager.LoadScene("CenaPrincipal");
     }
 
-    // Abre o painel de opções e esconde o menu inicial
-    public void AbrirOpções()
+    // Abre o painel de opï¿½ï¿½es e esconde o menu inicial
+    public void AbrirOpcoes()
     {
         painelMenuInicial.SetActive(false);
         painelOpcoes.SetActive(true);
 
     }
 
-    // Fecha o painel de opções e volta para o menu inicial
-    public void FecharOpções()
+    // Fecha o painel de opï¿½ï¿½es e volta para o menu inicial
+    public void FecharOpcoes()
     {
         painelOpcoes.SetActive(false);
         painelMenuInicial.SetActive(true);
     }
-    // Abre o painel de créditos e esconde o menu inicial
+    // Abre o painel de crï¿½ditos e esconde o menu inicial
     public void AbrirCreditos()
     {
         painelCreditos.SetActive(true);
         painelMenuInicial.SetActive(false);
     }
 
-    // Fecha o painel de créditos e volta para o menu inicial
+    // Fecha o painel de crï¿½ditos e volta para o menu inicial
     public void SairCreditos()
     {
         painelCreditos.SetActive(false);
