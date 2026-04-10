@@ -1,39 +1,61 @@
-```sh
-Utilize o site <https://www.toptal.com/developers/gitignore> para gerar seu arquivo gitignore e apague este campo.
-
-Vide tutoriais do PI.
-```
-
 # FECAP - Fundação de Comércio Álvares Penteado
 
 <p align="center">
 <a href= "https://www.fecap.br/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhZPrRa89Kma0ZZogxm0pi-tCn_TLKeHGVxywp-LXAFGR3B1DPouAJYHgKZGV0XTEf4AE&usqp=CAU" alt="FECAP - Fundação de Comércio Álvares Penteado" border="0"></a>
 </p>
 
-# Nome do Projeto
+# 🎮 Nome do Jogo: Urban Chase
 
-## Nome do Grupo
+## 👥 Nome do Grupo: CADD
 
-## Integrantes: <a href="https://www.linkedin.com/in/andre-makoto-molitorlitor-9aa6b7358">Andre Makoto Molitor</a>, <a href="https://www.linkedin.com/in/caio-fabio-ba3943392/">Caio Fabio Freitas</a>, <a href="https://www.linkedin.com/in/davivarella/?locale=en_US"> Davi George Varella </a>, <a href="https://www.linkedin.com/in/davi-moraes-675642260/">Davi Moraes</a>
+## 👨‍💻 Integrantes  
+<a href="https://www.linkedin.com/in/andre-makoto-molitorlitor-9aa6b7358">Andre Makoto Molitor</a>, <a href="https://www.linkedin.com/in/caio-fabio-ba3943392/">Caio Fabio Freitas</a>, <a href="https://www.linkedin.com/in/davivarella/">Davi Varella</a> e <a href="https://www.linkedin.com/in/davi-moraes-675642260/">Davi Moraes</a>  
 
-## Professores Orientadores: <a href="https://www.linkedin.com/in/victorbarq/">Dr. Victor Von Doom</a>, <a href="https://www.linkedin.com/in/victorbarq/">Me. Saitama</a>, <a href="https://www.linkedin.com/in/victorbarq/">Dr. Strange</a>, <a href="https://www.linkedin.com/in/victorbarq/">Me. Yoda</a>, <a href="https://www.linkedin.com/in/victorbarq/">Dr. Gero</a>
+## 👨‍🏫 Professores Orientadores  
+<a href="https://www.linkedin.com/in/adriano-valente-534576135/">Adriano Felix Valente</a>, <a href="https://www.linkedin.com/in/dolemes/">David de Oliveira Lemes</a>, <a href="https://www.linkedin.com/in/eduardo-savino-gomes-77833a10/">Eduardo Savino Gomes</a>, <a href="https://www.linkedin.com/in/remuniz/">Renata Muniz do Nascimento</a>, <a href="https://www.linkedin.com/in/victorbarq/">Victor Bruno Alexander Rosetti de Quiroz</a>  
 
-## Descrição
+---
 
 <p align="center">
-<img src="https://pix4free.org/assets/library/2021-01-20/originals/game.jpg" alt="NOME DO JOGO" border="0">
-  Game by <a href="http://www.nyphotographic.com/">Nick Youngson</a> <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a> <a href="http://pix4free.org/">Pix4free</a>
+<img src="/imagens/Urban_Chase.jpg" alt="Urban Chase" border="0">
+  Game by <a href="https://www.linkedin.com/in/andre-makoto-molitorlitor-9aa6b7358">Andre Makoto Molitor</a>, <a href="https://www.linkedin.com/in/caio-fabio-ba3943392/">Caio Fabio Freitas</a>, <a href="https://www.linkedin.com/in/davivarella/">Davi Varella</a> e <a href="https://www.linkedin.com/in/davi-moraes-675642260/">Davi Moraes</a>
+
+<a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>
 </p>
 
+## 📖 Descrição
 
-De um a dois parágrafos sobre o que é seu projeto e o que ele faz.
-<br><br>
-Meu projeto ajuda estudantes FECAP a configurarem seus githubs.
-<br><br>
-May the force be with you!
-<br><br>
+Este projeto consiste em um jogo de perseguição entre polícia e ladrão ambientado em um cenário urbano dinâmico. O jogador assume o papel do polícial, tendo como objetivo escapar ou capturar, respectivamente, utilizando habilidades de direção e estratégia.
 
-## 🛠 Estrutura de pastas
+O diferencial do jogo está na proposta de conscientização: durante as perseguições, o jogador deve lidar com elementos do ambiente que representam o patrimônio público, como postes, bancos, hidrantes e estruturas urbanas. A destruição desses elementos impacta negativamente a pontuação, incentivando uma condução mais responsável e destacando os prejuízos causados por perseguições na vida real.
+
+---
+
+## 🎯 Objetivo
+
+Criar um jogo interativo que una entretenimento e conscientização, demonstrando os impactos das perseguições urbanas no patrimônio público e na sociedade.
+
+---
+
+## 🧠 Mecânicas do Jogo
+
+- Sistema de perseguição (polícia vs ladrão)
+- Obstáculos urbanos interativos  
+- Sistema de pontuação baseado em destruição  
+- IA básica para viaturas policiais   
+- Penalizações por danos ao ambiente  
+
+---
+
+## 🚀 Diferenciais
+
+- Foco em conscientização social  
+- Cenário dinâmico com elementos destrutíveis  
+- Sistema de consequências (quanto mais destruição, pior o desempenho)
+
+---
+
+## 🛠 Estrutura de Pastas
 
 -Raiz<br>
 |<br>
@@ -50,69 +72,38 @@ May the force be with you!
   &emsp;|-->Frontend<br>
 |readme.md<br>
 
-A pasta raiz contem dois arquivos que devem ser alterados:
+---
 
-<b>README.MD</b>: Arquivo que serve como guia e explicação geral sobre seu projeto. O mesmo que você está lendo agora.
+## ⚙️ Instalação
 
-Há também 4 pastas que seguem da seguinte forma:
+### 💻 Windows
+- Acesse a pasta executáveis/windows
+- Execute o arquivo .exe
 
-<b>documentos</b>: Toda a documentação estará nesta pasta.
-
-<b>executáveis</b>: Binários e executáveis do projeto devem estar nesta pasta.
-
-<b>imagens</b>: Imagens do sistema
-
-<b>src</b>: Pasta que contém o código fonte.
-
-## 🛠 Instalação
-
-<b>Android:</b>
-
-Faça o Download do JOGO.apk no seu celular.
-Execute o APK e siga as instruções de seu telefone.
-
-```sh
-Coloque código do prompt de comnando se for necessário
-```
-
-<b>Windows:</b>
-
-Não há instalação! Apenas executável!
-Encontre o JOGO.exe na pasta executáveis e execute-o como qualquer outro programa.
-
-```sh
-Coloque código do prompt de comnando se for necessário
-```
-
-<b>HTML:</b>
-
-Não há instalação!
-Encontre o index.html na pasta executáveis e execute-o como uma página WEB (através de algum browser).
+---
 
 ## 💻 Configuração para Desenvolvimento
 
-Descreva como instalar todas as dependências para desenvolvimento e como rodar um test-suite automatizado de algum tipo. Se necessário, faça isso para múltiplas plataformas.
+Ferramentas necessárias:
+- Unity
 
-Para abrir este projeto você necessita das seguintes ferramentas:
+Passos:
+1. Instale a Unity
+2. Abra o projeto
+3. Execute a cena principal
 
--<a href="https://godotengine.org/download">GODOT</a>
+---
 
-```sh
-make install
-npm test
-Coloque código do prompt de comnando se for necessário
-```
+## 📋 Licença
 
-## 📋 Licença/License
-Utilize o link <https://chooser-beta.creativecommons.org/> para fazer uma licença CC BY 4.0.
+Creative Commons CC BY 4.0  
+https://creativecommons.org/licenses/by/4.0/
+
+---
 
 ## 🎓 Referências
 
-Aqui estão as referências usadas no projeto.
-
-1. <https://github.com/iuricode/readme-template>
-2. <https://github.com/gabrieldejesus/readme-model>
-3. <https://chooser-beta.creativecommons.org/>
-4. <https://freesound.org/>
-5. <https://www.toptal.com/developers/gitignore>
-6. Músicas por: <a href="https://freesound.org/people/DaveJf/sounds/616544/"> DaveJf </a> e <a href="https://freesound.org/people/DRFX/sounds/338986/"> DRFX </a> ambas com Licença CC 0.
+- https://github.com/iuricode/readme-template  
+- https://github.com/gabrieldejesus/readme-model  
+- https://freesound.org/  
+- https://www.toptal.com/developers/gitignore  
