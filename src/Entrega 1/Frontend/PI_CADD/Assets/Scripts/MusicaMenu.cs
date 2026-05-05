@@ -1,12 +1,18 @@
 using UnityEngine;
 
-public class MusicaMenu : MonoBehaviour
+public class MenuMusic : MonoBehaviour
 {
- 
     public AudioClip musicaMenu;
 
-    private void Start()
+    void Start()
     {
-        AudiosScript.instancia.TocarMusica(musicaMenu);
+        if (AudiosScript.instancia != null)
+        {
+            AudiosScript.instancia.TocarMusica(musicaMenu);
+        }
+        else
+        {
+            Debug.LogError("AudioManager não encontrado!");
+        }
     }
 }
