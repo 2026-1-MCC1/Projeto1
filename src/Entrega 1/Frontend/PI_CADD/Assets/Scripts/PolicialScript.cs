@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 
 public class PolicialScript : MonoBehaviour
 {
@@ -39,10 +40,22 @@ public class PolicialScript : MonoBehaviour
     public bool garantirSomBatida = true;
     public float velocidadeMinimaSomBatidaFallback = 3f;
     public float cooldownSomBatidaFallback = 0.2f;
+    [Header("Animacao Visual")]
+    public bool garantirAnimacaoRodas = true;
+    [Header("Sirene")]
+    public bool tocarSirene = true;
+    public bool tocarSireneSomenteNaCenaPrincipal = true;
+    public string nomeCenaSirene = "CenaPrincipal";
+    [Range(0f, 1f)] public float volumeSirene = 0.22f;
+    [Range(0.5f, 1.5f)] public float pitchSirene = 1f;
+    public float distanciaMaximaSirene = 45f;
+    public string recursoSirene = "Audio/engyclick-police-siren-sound-effect-317645";
+    public AudioClip sireneClip;
 
     private NavMeshAgent policialAgent;
     private Rigidbody rb;
     private ColisaoSom somColisaoLocal;
+    private AudioSource sourceSirene;
     private bool ativo = true;
     private float ultimoImpactoTempo = -999f;
     private float ultimoSomFallbackTempo = -999f;
@@ -73,6 +86,11 @@ public class PolicialScript : MonoBehaviour
         if (garantirSomBatida)
             GarantirComponenteSomBatida();
         somColisaoLocal = GetComponent<ColisaoSom>();
+
+        if (garantirAnimacaoRodas)
+            GarantirAnimacaoVisualRodas();
+
+        ConfigurarETocarSirene();
 
         if (ignorarColisaoComBloqueioPlanejamento)
             IgnorarColisoesComBloqueios();
@@ -127,6 +145,7 @@ public class PolicialScript : MonoBehaviour
     {
         ativo = false;
         if (rb != null) rb.linearVelocity = Vector3.zero;
+        PararSirene();
         OcultarTracker();
     }
 
@@ -134,6 +153,7 @@ public class PolicialScript : MonoBehaviour
     {
         ativo = false;
         if (rb != null) rb.linearVelocity = Vector3.zero;
+        PararSirene();
         OcultarTracker();
 
         GameplayPartidaController partida = GameplayPartidaController.Instancia;
@@ -310,6 +330,73 @@ public class PolicialScript : MonoBehaviour
             meuSom.cooldownSom = referenciaSom.cooldownSom;
             meuSom.ignorarChaoERua = referenciaSom.ignorarChaoERua;
         }
+    }
+
+    private void GarantirAnimacaoVisualRodas()
+    {
+        AnimacaoVisualRodasCarro animacao = GetComponent<AnimacaoVisualRodasCarro>();
+        if (animacao == null)
+            animacao = gameObject.AddComponent<AnimacaoVisualRodasCarro>();
+
+        animacao.AutoDetectarRodas();
+    }
+
+    private void ConfigurarETocarSirene()
+    {
+        if (!tocarSirene) return;
+
+        if (tocarSireneSomenteNaCenaPrincipal)
+        {
+            string cenaAtual = SceneManager.GetActiveScene().name;
+            if (!string.Equals(cenaAtual, nomeCenaSirene, System.StringComparison.Ordinal))
+                return;
+        }
+
+        if (sireneClip == null && !string.IsNullOrEmpty(recursoSirene))
+            sireneClip = Resources.Load<AudioClip>(recursoSirene);
+
+        if (sireneClip == null)
+        {
+            Debug.LogWarning("PolicialScript: sirene nao encontrada. Confira o recurso em Resources/Audio.");
+            return;
+        }
+
+        Transform noSirene = transform.Find("SireneAudio");
+        if (noSirene == null)
+        {
+            GameObject go = new GameObject("SireneAudio");
+            go.transform.SetParent(transform);
+            go.transform.localPosition = Vector3.zero;
+            go.transform.localRotation = Quaternion.identity;
+            go.transform.localScale = Vector3.one;
+            noSirene = go.transform;
+        }
+
+        sourceSirene = noSirene.GetComponent<AudioSource>();
+        if (sourceSirene == null)
+            sourceSirene = noSirene.gameObject.AddComponent<AudioSource>();
+
+        sourceSirene.playOnAwake = false;
+        sourceSirene.loop = true;
+        sourceSirene.spatialBlend = 0f;
+        sourceSirene.maxDistance = Mathf.Max(5f, distanciaMaximaSirene);
+        sourceSirene.volume = Mathf.Clamp01(volumeSirene);
+        sourceSirene.pitch = Mathf.Clamp(pitchSirene, 0.5f, 1.5f);
+        sourceSirene.clip = sireneClip;
+
+        if (!sourceSirene.isPlaying)
+            sourceSirene.Play();
+    }
+
+    private void PararSirene()
+    {
+        if (sourceSirene != null && sourceSirene.isPlaying)
+            sourceSirene.Stop();
+    }
+
+    private void OnDestroy()
+    {
+        PararSirene();
     }
 
     private void OcultarTracker()

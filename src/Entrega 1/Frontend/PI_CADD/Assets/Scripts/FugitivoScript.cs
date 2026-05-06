@@ -18,6 +18,8 @@ public class FugitivoScript : MonoBehaviour
     [Header("Detector de Colisao do Cenario")]
     public float raioDetectorCenario = 1.3f;
     public float alturaDetectorCenario = 0.8f;
+    [Header("Animacao Visual")]
+    public bool garantirAnimacaoRodas = true;
 
     private NavMeshAgent fugitivo;
     private Rigidbody rb;
@@ -63,6 +65,9 @@ public class FugitivoScript : MonoBehaviour
         }
 
         CriarDetectorCenarioSeNecessario();
+
+        if (garantirAnimacaoRodas)
+            GarantirAnimacaoVisualRodas();
 
         fugitivo.isStopped = false;
         fugitivo.SetDestination(pontoFuga.position);
@@ -246,5 +251,14 @@ public class FugitivoScript : MonoBehaviour
         }
 
         Debug.Log("Fugitivo foi pego!");
+    }
+
+    private void GarantirAnimacaoVisualRodas()
+    {
+        AnimacaoVisualRodasCarro animacao = GetComponent<AnimacaoVisualRodasCarro>();
+        if (animacao == null)
+            animacao = gameObject.AddComponent<AnimacaoVisualRodasCarro>();
+
+        animacao.AutoDetectarRodas();
     }
 }

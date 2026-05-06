@@ -4040,7 +4040,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8301ab72c7ae634a9bcce31c212ef63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EfeitosJogo
-  sirene: {fileID: 8300000, guid: 447c6395c29099143b807aca3adaf9b2, type: 3}
+  sirene: {fileID: 8300000, guid: 6d0bdf4e685b2ec41a82ca20059d623a, type: 3}
   batida: {fileID: 8300000, guid: a63f835170c0b0f4ba9001dd4dfadb9f, type: 3}
 --- !u!4 &113977078
 Transform:
@@ -10806,7 +10806,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.43318874, y: 0, z: 0, w: 0.90130323}
-  m_LocalPosition: {x: -2514.4, y: 27, z: -288.57}
+  m_LocalPosition: {x: -2514.4, y: 26.2, z: -288.57}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -47024,7 +47024,7 @@ Transform:
   m_GameObject: {fileID: 1273775016}
   serializedVersion: 2
   m_LocalRotation: {x: 0.43318874, y: 0, z: 0, w: 0.90130323}
-  m_LocalPosition: {x: -2514.4, y: 27, z: -288.57}
+  m_LocalPosition: {x: -2514.4, y: 26.2, z: -288.57}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -48124,7 +48124,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e7ebef12a3e8b4a19b24c8141dbb5097, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2
+      value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e7ebef12a3e8b4a19b24c8141dbb5097, type: 3}
       propertyPath: m_LocalPosition.z
@@ -61087,6 +61087,7 @@ MonoBehaviour:
   garantirSomBatida: 1
   velocidadeMinimaSomBatidaFallback: 3
   cooldownSomBatidaFallback: 0.2
+  garantirAnimacaoRodas: 1
 --- !u!54 &1572264179
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -81838,6 +81839,7 @@ MonoBehaviour:
   cooldownPenalidade: 0.25
   raioDetectorCenario: 2.2
   alturaDetectorCenario: 0.8
+  garantirAnimacaoRodas: 1
 --- !u!195 &2017990364
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -85637,6 +85639,7 @@ MonoBehaviour:
   botaoReiniciarFim: {fileID: 2100000480}
   botaoMenuFim: {fileID: 2100000490}
   cenaMenu: Menu
+  cenaPlanejamento: CenaPlanejamento
   usarContagemInicial: 1
   segundosContagem: 3
 --- !u!1 &2100000400
