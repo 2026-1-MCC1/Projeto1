@@ -86,15 +86,7 @@ public class AplicarPlanejamentoNaPerseguicao : MonoBehaviour
             }
         }
 
-        GameObject pontoBloqueio = GameObject.Find("PontoBloqueio");
-        if (pontoBloqueio != null)
-        {
-            Collider[] cols = pontoBloqueio.GetComponentsInChildren<Collider>(true);
-            for (int c = 0; c < cols.Length; c++)
-            {
-                if (cols[c] != null)
-                    cols[c].enabled = false;
-            }
-        }
+        // Mantem o PontoBloqueio ativo na perseguicao.
+        // Ele e usado como area de derrota/trava para o policial.
     }
 }

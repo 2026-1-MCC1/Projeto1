@@ -3,7 +3,6 @@ using UnityEngine.SceneManagement;
 
 public class MenuScript : MonoBehaviour
 {
-
     [SerializeField] private GameObject painelMenuInicial;
     [SerializeField] private GameObject painelOpcoes;
     [SerializeField] private GameObject painelCreditos;
@@ -12,53 +11,51 @@ public class MenuScript : MonoBehaviour
     [SerializeField] private string cenaPlanejamento = "CenaPlanejamento";
     [SerializeField] private string cenaPerseguicaoDireta = "CenaPrincipal";
 
-    // Fun��o chamada quando o jogador clica em "Iniciar Jogo"
-    // Aqui voc� pode colocar o c�digo para carregar a cena do jogo
+    // Inicia o jogo pela cena de planejamento (quando habilitado) ou direto na perseguicao.
     public void IniciarJogo()
     {
-       painelMenuInicial.SetActive(false);
-       PlanejamentoRuntimeData.LimparPlano();
+        if (painelMenuInicial != null) painelMenuInicial.SetActive(false);
+        PlanejamentoRuntimeData.LimparPlano();
 
-       string cenaDestino = cenaPerseguicaoDireta;
-       if (usarCenaPlanejamento && Application.CanStreamedLevelBeLoaded(cenaPlanejamento))
-           cenaDestino = cenaPlanejamento;
+        string cenaDestino = cenaPerseguicaoDireta;
+        if (usarCenaPlanejamento && Application.CanStreamedLevelBeLoaded(cenaPlanejamento))
+            cenaDestino = cenaPlanejamento;
 
-       SceneManager.LoadScene(cenaDestino);
+        SceneManager.LoadScene(cenaDestino);
     }
 
-    // Abre o painel de op��es e esconde o menu inicial
+    // Abre o painel de opcoes.
     public void AbrirOpcoes()
     {
-        painelMenuInicial.SetActive(false);
-        painelOpcoes.SetActive(true);
-
+        if (painelMenuInicial != null) painelMenuInicial.SetActive(false);
+        if (painelOpcoes != null) painelOpcoes.SetActive(true);
     }
 
-    // Fecha o painel de op��es e volta para o menu inicial
+    // Fecha o painel de opcoes.
     public void FecharOpcoes()
     {
-        painelOpcoes.SetActive(false);
-        painelMenuInicial.SetActive(true);
+        if (painelOpcoes != null) painelOpcoes.SetActive(false);
+        if (painelMenuInicial != null) painelMenuInicial.SetActive(true);
     }
-    // Abre o painel de cr�ditos e esconde o menu inicial
+
+    // Abre o painel de creditos.
     public void AbrirCreditos()
     {
-        painelCreditos.SetActive(true);
-        painelMenuInicial.SetActive(false);
+        if (painelCreditos != null) painelCreditos.SetActive(true);
+        if (painelMenuInicial != null) painelMenuInicial.SetActive(false);
     }
 
-    // Fecha o painel de cr�ditos e volta para o menu inicial
+    // Fecha o painel de creditos.
     public void SairCreditos()
     {
-        painelCreditos.SetActive(false);
-        painelMenuInicial.SetActive(true);
+        if (painelCreditos != null) painelCreditos.SetActive(false);
+        if (painelMenuInicial != null) painelMenuInicial.SetActive(true);
     }
 
-    // Fecha o painel de Game Over e volta para o menu inicial
+    // Fecha o painel de game over.
     public void SairGameOver()
     {
-        painelGameOver.SetActive(false);
-        painelMenuInicial.SetActive(true);
+        if (painelGameOver != null) painelGameOver.SetActive(false);
+        if (painelMenuInicial != null) painelMenuInicial.SetActive(true);
     }
-
 }

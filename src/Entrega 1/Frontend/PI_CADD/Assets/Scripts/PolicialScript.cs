@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.SceneManagement;
 
 public class PolicialScript : MonoBehaviour
 {
@@ -13,61 +12,44 @@ public class PolicialScript : MonoBehaviour
     [Range(0.2f, 1f)] public float sensibilidadeInput = 0.6f;
     [Range(0f, 0.3f)] public float zonaMortaInput = 0.08f;
 
-    [Header("Estabilidade")]
-    public bool travarMovimentoNoPlano = true;
-
     [Header("Pontuacao")]
     public int penalidadeColisao = 5;
     public float velocidadeMinimaImpacto = 2.5f;
     public float cooldownPenalidade = 0.25f;
 
     [Header("Tracker do Fugitivo")]
-    public bool usarTrackerPontilhado = true;
+    public bool usarTracker = true;
     public Transform alvoFugitivo;
-    public Transform setaTrackerUnica;
+    public GameObject prefabSetaTracker;
     public float distanciaMinimaTracker = 45f;
     public float distanciaInicialTracker = 10f;
-    public float espacamentoTracker = 4f;
-    public int maxPontosTracker = 25;
-    public float tamanhoPontoTracker = 1.2f;
     public float offsetAlturaTracker = 0.12f;
-    public Color corTracker = new Color(1f, 0.95f, 0.2f, 0.85f);
 
-    [Header("Compatibilidade de Bloqueio")]
-    public bool ignorarColisaoComBloqueioPlanejamento = true;
-
-    [Header("Som de Batida")]
-    public bool garantirSomBatida = true;
-    public float velocidadeMinimaSomBatidaFallback = 3f;
-    public float cooldownSomBatidaFallback = 0.2f;
-    [Header("Animacao Visual")]
-    public bool garantirAnimacaoRodas = true;
     [Header("Sirene")]
-    public bool tocarSirene = true;
-    public bool tocarSireneSomenteNaCenaPrincipal = true;
-    public string nomeCenaSirene = "CenaPrincipal";
+    public AudioClip sirene;
     [Range(0f, 1f)] public float volumeSirene = 0.22f;
-    [Range(0.5f, 1.5f)] public float pitchSirene = 1f;
-    public float distanciaMaximaSirene = 45f;
-    public string recursoSirene = "Audio/engyclick-police-siren-sound-effect-317645";
-    public AudioClip sireneClip;
 
-    private NavMeshAgent policialAgent;
     private Rigidbody rb;
-    private ColisaoSom somColisaoLocal;
     private AudioSource sourceSirene;
+    private Transform setaTrackerInstancia;
+    private Collider colliderPolicial;
+    private Collider[] collidersPontoBloqueio;
+    private float proximaBuscaPontoBloqueioTempo = -1f;
     private bool ativo = true;
+    private bool movimentoTravadoPorBloqueio = false;
     private float ultimoImpactoTempo = -999f;
-    private float ultimoSomFallbackTempo = -999f;
     private float velocidadeAtual = 0f;
+    private float volumeSireneAplicado = -1f;
 
     private void Start()
     {
-        policialAgent = GetComponent<NavMeshAgent>();
-        if (policialAgent != null)
+        // O policial e dirigido por fisica do Rigidbody.
+        // Se houver NavMeshAgent no prefab, ele e desligado para evitar conflitos.
+        NavMeshAgent agente = GetComponent<NavMeshAgent>();
+        if (agente != null)
         {
-            policialAgent.isStopped = true;
-            policialAgent.enabled = false;
+            agente.isStopped = true;
+            agente.enabled = false;
         }
 
         rb = GetComponent<Rigidbody>();
@@ -78,29 +60,43 @@ public class PolicialScript : MonoBehaviour
             return;
         }
 
+        colliderPolicial = GetComponent<Collider>();
+        if (colliderPolicial == null)
+        {
+            Debug.LogError("PolicialScript: Collider nao encontrado no objeto do policial.");
+            enabled = false;
+            return;
+        }
+
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         rb.useGravity = true;
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
-        if (garantirSomBatida)
-            GarantirComponenteSomBatida();
-        somColisaoLocal = GetComponent<ColisaoSom>();
-
-        if (garantirAnimacaoRodas)
-            GarantirAnimacaoVisualRodas();
+        GarantirComponenteSomBatida();
 
         ConfigurarETocarSirene();
+        AtualizarReferenciaPontoBloqueio(true);
 
-        if (ignorarColisaoComBloqueioPlanejamento)
-            IgnorarColisoesComBloqueios();
-
+        // O tracker depende do fugitivo e da seta de indicador ja existentes na cena.
         InicializarTrackerSeNecessario();
     }
 
     private void FixedUpdate()
     {
         if (!ativo || rb == null) return;
+        if (EstaDentroDoPontoBloqueio())
+        {
+            AcionarBloqueioMovimento();
+            return;
+        }
+
+        if (movimentoTravadoPorBloqueio)
+        {
+            velocidadeAtual = 0f;
+            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+            return;
+        }
 
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
@@ -123,6 +119,7 @@ public class PolicialScript : MonoBehaviour
 
         velocidadeAtual = Mathf.MoveTowards(velocidadeAtual, velocidadeAlvo, taxaVelocidade * Time.fixedDeltaTime);
 
+        // Movimento no plano horizontal; eixo Y continua sob responsabilidade da fisica.
         Vector3 novaVelocidadePlano = transform.forward * velocidadeAtual;
         rb.linearVelocity = new Vector3(novaVelocidadePlano.x, rb.linearVelocity.y, novaVelocidadePlano.z);
 
@@ -138,6 +135,7 @@ public class PolicialScript : MonoBehaviour
 
     private void Update()
     {
+        AtualizarVolumeSireneEmTempoReal();
         AtualizarTracker();
     }
 
@@ -170,10 +168,6 @@ public class PolicialScript : MonoBehaviour
     {
         if (!ativo || collision == null) return;
 
-        // Evita som duplicado/spam quando ja existe ColisaoSom no objeto.
-        if (somColisaoLocal == null && PodeTocarSomFallback(collision))
-            ColisaoSom.TocarSomBatidaGlobal(transform.position);
-
         if (collision.gameObject.GetComponent<FugitivoScript>() != null)
         {
             FugitivoPego();
@@ -187,6 +181,22 @@ public class PolicialScript : MonoBehaviour
             partida.DescontarPontos(penalidadeColisao);
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!ativo || other == null) return;
+        if (movimentoTravadoPorBloqueio) return;
+        if (!EhPontoBloqueio(other)) return;
+        AcionarBloqueioMovimento();
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (!ativo || other == null) return;
+        if (movimentoTravadoPorBloqueio) return;
+        if (!EhPontoBloqueio(other)) return;
+        AcionarBloqueioMovimento();
+    }
+
     private bool PodePenalizar(Collision collision)
     {
         if (collision == null) return false;
@@ -198,35 +208,96 @@ public class PolicialScript : MonoBehaviour
 
         if (outro.GetComponent<PolicialScript>() != null) return false;
         if (outro.GetComponent<FugitivoScript>() != null) return false;
+        if (outro.GetComponentInParent<BloqueioPosicionamentoArea>() != null) return false;
 
         string nome = outro.name.ToLowerInvariant();
-        if (nome.Contains("ground") || nome.Contains("road")) return false;
+        if (nome.Contains("ground") || nome.Contains("road") || nome.Contains("pista") || nome.Contains("lane") || nome.Contains("tile") || nome.Contains("bloqueio")) return false;
 
         ultimoImpactoTempo = Time.time;
         return true;
     }
 
-    private bool PodeTocarSomFallback(Collision collision)
+    private bool EhPontoBloqueio(Collider other)
     {
-        if (collision == null) return false;
-        if (Time.time - ultimoSomFallbackTempo < cooldownSomBatidaFallback) return false;
-        if (collision.relativeVelocity.magnitude < velocidadeMinimaSomBatidaFallback) return false;
+        if (other == null) return false;
 
-        GameObject outro = collision.gameObject;
-        if (outro == null) return false;
+        if (collidersPontoBloqueio != null)
+        {
+            for (int i = 0; i < collidersPontoBloqueio.Length; i++)
+            {
+                Collider c = collidersPontoBloqueio[i];
+                if (c == null) continue;
+                if (other == c) return true;
+                if (other.transform.IsChildOf(c.transform) || c.transform.IsChildOf(other.transform)) return true;
+            }
+        }
 
-        if (outro.transform.IsChildOf(transform)) return false;
+        Transform t = other.transform;
+        if (t == null) return false;
 
-        string nome = outro.name.ToLowerInvariant();
-        if (nome.Contains("ground") || nome.Contains("road") || nome.Contains("pista") || nome.Contains("floor")) return false;
+        string nome = t.name.ToLowerInvariant();
+        if (nome.Contains("pontobloqueio")) return true;
 
-        ultimoSomFallbackTempo = Time.time;
-        return true;
+        if (t.root != null)
+        {
+            string nomeRaiz = t.root.name.ToLowerInvariant();
+            if (nomeRaiz.Contains("pontobloqueio")) return true;
+        }
+
+        return false;
+    }
+
+    private bool EstaDentroDoPontoBloqueio()
+    {
+        if (colliderPolicial == null) return false;
+
+        if ((collidersPontoBloqueio == null || collidersPontoBloqueio.Length == 0) && Time.time >= proximaBuscaPontoBloqueioTempo)
+            AtualizarReferenciaPontoBloqueio(false);
+
+        if (collidersPontoBloqueio == null || collidersPontoBloqueio.Length == 0) return false;
+
+        for (int i = 0; i < collidersPontoBloqueio.Length; i++)
+        {
+            Collider bloqueio = collidersPontoBloqueio[i];
+            if (bloqueio == null || !bloqueio.enabled) continue;
+
+            Vector3 direcao;
+            float distancia;
+            bool sobrepoe = Physics.ComputePenetration(
+                colliderPolicial, colliderPolicial.transform.position, colliderPolicial.transform.rotation,
+                bloqueio, bloqueio.transform.position, bloqueio.transform.rotation,
+                out direcao, out distancia);
+
+            if (sobrepoe) return true;
+        }
+
+        return false;
+    }
+
+    private void AtualizarReferenciaPontoBloqueio(bool imediato)
+    {
+        if (!imediato && Time.time < proximaBuscaPontoBloqueioTempo) return;
+
+        GameObject pontoBloqueio = GameObject.Find("PontoBloqueio");
+        collidersPontoBloqueio = pontoBloqueio != null
+            ? pontoBloqueio.GetComponentsInChildren<Collider>(true)
+            : null;
+
+        proximaBuscaPontoBloqueioTempo = Time.time + 0.5f;
+    }
+
+    private void AcionarBloqueioMovimento()
+    {
+        if (movimentoTravadoPorBloqueio) return;
+
+        movimentoTravadoPorBloqueio = true;
+        velocidadeAtual = 0f;
+        if (rb != null) rb.linearVelocity = Vector3.zero;
     }
 
     private void InicializarTrackerSeNecessario()
     {
-        if (!usarTrackerPontilhado) return;
+        if (!usarTracker) return;
 
         if (alvoFugitivo == null)
         {
@@ -234,10 +305,15 @@ public class PolicialScript : MonoBehaviour
             if (fugitivo != null) alvoFugitivo = fugitivo.transform;
         }
 
-        if (setaTrackerUnica == null)
+        GameObject obj = GameObject.Find("SetaTracker");
+        if (obj != null)
+            setaTrackerInstancia = obj.transform;
+
+        if (setaTrackerInstancia == null && prefabSetaTracker != null)
         {
-            GameObject obj = GameObject.Find("SetaTrackerUnica");
-            if (obj != null) setaTrackerUnica = obj.transform;
+            GameObject instancia = Instantiate(prefabSetaTracker);
+            instancia.name = "SetaTracker";
+            setaTrackerInstancia = instancia.transform;
         }
 
         OcultarTracker();
@@ -245,7 +321,7 @@ public class PolicialScript : MonoBehaviour
 
     private void AtualizarTracker()
     {
-        if (!usarTrackerPontilhado || !ativo || alvoFugitivo == null || setaTrackerUnica == null)
+        if (!usarTracker || !ativo || alvoFugitivo == null || setaTrackerInstancia == null)
         {
             OcultarTracker();
             return;
@@ -267,42 +343,11 @@ public class PolicialScript : MonoBehaviour
         Vector3 pos = origem + (direcao * Mathf.Max(0f, distanciaInicialTracker));
         pos.y = CalcularAlturaNoChao(pos) + offsetAlturaTracker;
 
-        setaTrackerUnica.position = pos;
-        setaTrackerUnica.rotation = Quaternion.LookRotation(direcao, Vector3.up);
+        setaTrackerInstancia.position = pos;
+        setaTrackerInstancia.rotation = Quaternion.LookRotation(direcao, Vector3.up);
 
-        if (!setaTrackerUnica.gameObject.activeSelf)
-            setaTrackerUnica.gameObject.SetActive(true);
-    }
-
-    private void IgnorarColisoesComBloqueios()
-    {
-        Collider[] colsPolicial = GetComponentsInChildren<Collider>(true);
-        if (colsPolicial == null || colsPolicial.Length == 0) return;
-
-        Collider[] todos = FindObjectsByType<Collider>(FindObjectsSortMode.None);
-        for (int i = 0; i < todos.Length; i++)
-        {
-            Collider col = todos[i];
-            if (col == null) continue;
-            if (!EhColliderDeBloqueio(col)) continue;
-
-            for (int p = 0; p < colsPolicial.Length; p++)
-            {
-                if (colsPolicial[p] == null) continue;
-                Physics.IgnoreCollision(colsPolicial[p], col, true);
-            }
-        }
-    }
-
-    private bool EhColliderDeBloqueio(Collider col)
-    {
-        if (col.GetComponentInParent<BloqueioPosicionamentoArea>() != null) return true;
-
-        string nome = col.gameObject.name.ToLowerInvariant();
-        if (nome.Contains("pontobloqueio")) return true;
-        if (nome.Contains("areabloqueadacarros")) return true;
-
-        return false;
+        if (!setaTrackerInstancia.gameObject.activeSelf)
+            setaTrackerInstancia.gameObject.SetActive(true);
     }
 
     private void GarantirComponenteSomBatida()
@@ -326,38 +371,19 @@ public class PolicialScript : MonoBehaviour
         if (referenciaSom != null)
         {
             meuSom.somBatida = referenciaSom.somBatida;
+            meuSom.volumeBatida = referenciaSom.volumeBatida;
             meuSom.velocidadeMinimaImpacto = referenciaSom.velocidadeMinimaImpacto;
             meuSom.cooldownSom = referenciaSom.cooldownSom;
+            meuSom.cooldownMesmoAlvo = referenciaSom.cooldownMesmoAlvo;
             meuSom.ignorarChaoERua = referenciaSom.ignorarChaoERua;
         }
     }
 
-    private void GarantirAnimacaoVisualRodas()
-    {
-        AnimacaoVisualRodasCarro animacao = GetComponent<AnimacaoVisualRodasCarro>();
-        if (animacao == null)
-            animacao = gameObject.AddComponent<AnimacaoVisualRodasCarro>();
-
-        animacao.AutoDetectarRodas();
-    }
-
     private void ConfigurarETocarSirene()
     {
-        if (!tocarSirene) return;
-
-        if (tocarSireneSomenteNaCenaPrincipal)
+        if (sirene == null)
         {
-            string cenaAtual = SceneManager.GetActiveScene().name;
-            if (!string.Equals(cenaAtual, nomeCenaSirene, System.StringComparison.Ordinal))
-                return;
-        }
-
-        if (sireneClip == null && !string.IsNullOrEmpty(recursoSirene))
-            sireneClip = Resources.Load<AudioClip>(recursoSirene);
-
-        if (sireneClip == null)
-        {
-            Debug.LogWarning("PolicialScript: sirene nao encontrada. Confira o recurso em Resources/Audio.");
+            PararSirene();
             return;
         }
 
@@ -379,13 +405,16 @@ public class PolicialScript : MonoBehaviour
         sourceSirene.playOnAwake = false;
         sourceSirene.loop = true;
         sourceSirene.spatialBlend = 0f;
-        sourceSirene.maxDistance = Mathf.Max(5f, distanciaMaximaSirene);
-        sourceSirene.volume = Mathf.Clamp01(volumeSirene);
-        sourceSirene.pitch = Mathf.Clamp(pitchSirene, 0.5f, 1.5f);
-        sourceSirene.clip = sireneClip;
+        sourceSirene.clip = sirene;
 
-        if (!sourceSirene.isPlaying)
+        float volumeAtual = Mathf.Clamp01(volumeSirene) * ObterVolumeEfeitosGlobal();
+        sourceSirene.volume = volumeAtual;
+        volumeSireneAplicado = volumeAtual;
+
+        if (volumeAtual > 0.0001f && !sourceSirene.isPlaying)
             sourceSirene.Play();
+
+        SincronizarOutrasFontesSirene(volumeAtual);
     }
 
     private void PararSirene()
@@ -399,10 +428,65 @@ public class PolicialScript : MonoBehaviour
         PararSirene();
     }
 
+    private void AtualizarVolumeSireneEmTempoReal()
+    {
+        if (sourceSirene == null || sourceSirene.clip == null) return;
+
+        float volumeAtual = Mathf.Clamp01(volumeSirene) * ObterVolumeEfeitosGlobal();
+        if (Mathf.Approximately(volumeSireneAplicado, volumeAtual)) return;
+
+        sourceSirene.volume = volumeAtual;
+        volumeSireneAplicado = volumeAtual;
+
+        if (volumeAtual <= 0.0001f)
+        {
+            if (sourceSirene.isPlaying) sourceSirene.Pause();
+        }
+        else
+        {
+            if (!sourceSirene.isPlaying) sourceSirene.UnPause();
+            if (!sourceSirene.isPlaying) sourceSirene.Play();
+        }
+
+        SincronizarOutrasFontesSirene(volumeAtual);
+    }
+
+    private void SincronizarOutrasFontesSirene(float volumeAtual)
+    {
+        AudioSource[] fontes = GetComponentsInChildren<AudioSource>(true);
+        for (int i = 0; i < fontes.Length; i++)
+        {
+            AudioSource fonte = fontes[i];
+            if (fonte == null || fonte == sourceSirene) continue;
+
+            bool pareceSirenePorNome = fonte.gameObject.name.ToLowerInvariant().Contains("sirene")
+                || fonte.gameObject.name.ToLowerInvariant().Contains("siren");
+            bool usaMesmoClip = sirene != null && fonte.clip == sirene;
+            if (!pareceSirenePorNome && !usaMesmoClip) continue;
+
+            fonte.volume = volumeAtual;
+
+            if (volumeAtual <= 0.0001f)
+            {
+                if (fonte.isPlaying) fonte.Pause();
+            }
+            else
+            {
+                if (fonte.loop && !fonte.isPlaying) fonte.UnPause();
+            }
+        }
+    }
+
+    private float ObterVolumeEfeitosGlobal()
+    {
+        if (AudiosScript.instancia == null) return 1f;
+        return Mathf.Clamp01(AudiosScript.instancia.volumeEfeitos);
+    }
+
     private void OcultarTracker()
     {
-        if (setaTrackerUnica != null && setaTrackerUnica.gameObject.activeSelf)
-            setaTrackerUnica.gameObject.SetActive(false);
+        if (setaTrackerInstancia != null && setaTrackerInstancia.gameObject.activeSelf)
+            setaTrackerInstancia.gameObject.SetActive(false);
     }
 
     private float CalcularAlturaNoChao(Vector3 pontoNoMundo)

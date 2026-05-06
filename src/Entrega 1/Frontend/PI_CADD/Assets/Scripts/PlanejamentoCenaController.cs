@@ -74,8 +74,8 @@ public class PlanejamentoCenaController : MonoBehaviour
     {
         if (GameObject.Find("AreaBloqueadaCarros") != null) return;
 
-        PolicialScript[] policiais = FindObjectsOfType<PolicialScript>(true);
-        FugitivoScript[] fugitivos = FindObjectsOfType<FugitivoScript>(true);
+        PolicialScript[] policiais = FindObjectsByType<PolicialScript>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        FugitivoScript[] fugitivos = FindObjectsByType<FugitivoScript>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         if (policiais.Length == 0 || fugitivos.Length == 0) return;
 
         Transform tPolicial = policiais[0].transform;

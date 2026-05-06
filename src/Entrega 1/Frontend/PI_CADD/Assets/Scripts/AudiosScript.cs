@@ -1,9 +1,12 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class AudiosScript : MonoBehaviour
 {
     public static AudiosScript instancia;
+    private const string ChaveVolumeMusica = "audio_volume_musica";
+    private const string ChaveVolumeEfeitos = "audio_volume_efeitos";
 
     [Header("Fontes de Audio")]
     public AudioSource musicaSource;
@@ -12,6 +15,8 @@ public class AudiosScript : MonoBehaviour
     [Header("Volume Inicial (20%)")]
     [Range(0f, 1f)] public float volumeMusica = 0.2f;
     [Range(0f, 1f)] public float volumeEfeitos = 0.2f;
+    private Slider sliderMusicaMenu;
+    private Slider sliderEfeitosMenu;
 
     private void Awake()
     {
@@ -26,12 +31,20 @@ public class AudiosScript : MonoBehaviour
             return;
         }
 
+        CarregarPreferenciasVolume();
         AplicarVolume();
+        ConfigurarSlidersMenuNaCenaAtual();
     }
 
     private void OnEnable()
     {
         SceneManager.sceneLoaded += QuandoTrocarCena;
+    }
+
+    private System.Collections.IEnumerator Start()
+    {
+        yield return null;
+        ConfigurarSlidersMenuNaCenaAtual();
     }
 
     private void OnDisable()
@@ -45,6 +58,9 @@ public class AudiosScript : MonoBehaviour
         {
             musicaSource.Stop();
         }
+
+        if (scene.name == "Menu")
+            ConfigurarSlidersMenuNaCenaAtual();
     }
 
     private void AplicarVolume()
@@ -58,13 +74,15 @@ public class AudiosScript : MonoBehaviour
 
     public void MudarVolumeMusica(float valor)
     {
-        volumeMusica = valor;
+        volumeMusica = Mathf.Clamp01(valor);
+        SalvarPreferenciasVolume();
         AplicarVolume();
     }
 
     public void MudarVolumeEfeitos(float valor)
     {
-        volumeEfeitos = valor;
+        volumeEfeitos = Mathf.Clamp01(valor);
+        SalvarPreferenciasVolume();
         AplicarVolume();
     }
 
@@ -81,7 +99,50 @@ public class AudiosScript : MonoBehaviour
 
     public void TocarEfeito(AudioClip clip)
     {
+        TocarEfeito(clip, 1f);
+    }
+
+    public void TocarEfeito(AudioClip clip, float multiplicadorVolume)
+    {
         if (clip == null || efeitosSource == null) return;
-        efeitosSource.PlayOneShot(clip, volumeEfeitos);
+        float multiplicador = Mathf.Clamp01(multiplicadorVolume);
+        efeitosSource.PlayOneShot(clip, volumeEfeitos * multiplicador);
+    }
+
+    private void CarregarPreferenciasVolume()
+    {
+        volumeMusica = Mathf.Clamp01(PlayerPrefs.GetFloat(ChaveVolumeMusica, volumeMusica));
+        volumeEfeitos = Mathf.Clamp01(PlayerPrefs.GetFloat(ChaveVolumeEfeitos, volumeEfeitos));
+    }
+
+    private void SalvarPreferenciasVolume()
+    {
+        PlayerPrefs.SetFloat(ChaveVolumeMusica, volumeMusica);
+        PlayerPrefs.SetFloat(ChaveVolumeEfeitos, volumeEfeitos);
+        PlayerPrefs.Save();
+    }
+
+    private void ConfigurarSlidersMenuNaCenaAtual()
+    {
+        Scene cenaAtual = SceneManager.GetActiveScene();
+        if (cenaAtual.name != "Menu") return;
+
+        GameObject objMusica = GameObject.Find("Musica");
+        sliderMusicaMenu = objMusica != null ? objMusica.GetComponent<Slider>() : null;
+        if (sliderMusicaMenu != null)
+        {
+            sliderMusicaMenu.onValueChanged.RemoveListener(MudarVolumeMusica);
+            sliderMusicaMenu.SetValueWithoutNotify(volumeMusica);
+            sliderMusicaMenu.onValueChanged.AddListener(MudarVolumeMusica);
+        }
+
+        GameObject objEfeitos = GameObject.Find("Volume");
+        sliderEfeitosMenu = objEfeitos != null ? objEfeitos.GetComponent<Slider>() : null;
+        if (sliderEfeitosMenu != null)
+        {
+            sliderEfeitosMenu.onValueChanged.RemoveListener(MudarVolumeEfeitos);
+            sliderEfeitosMenu.SetValueWithoutNotify(volumeEfeitos);
+            sliderEfeitosMenu.onValueChanged.AddListener(MudarVolumeEfeitos);
+        }
     }
 }

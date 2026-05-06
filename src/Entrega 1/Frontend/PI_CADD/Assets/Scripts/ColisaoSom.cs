@@ -1,34 +1,25 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class ColisaoSom : MonoBehaviour
 {
     public AudioClip somBatida;
+    [Range(0f, 1f)] public float volumeBatida = 1f;
 
     [Header("Ajuste de Disparo")]
     public float velocidadeMinimaImpacto = 2.3f;
     public float cooldownSom = 0.12f;
+    public float cooldownMesmoAlvo = 0.7f;
     public bool ignorarChaoERua = true;
 
-    private Rigidbody rb;
     private float ultimoSomTempo = -999f;
-    private Vector3 ultimaPosicao;
-    private float velocidadePorDeslocamento;
+    private readonly Dictionary<int, float> ultimoSomPorAlvo = new Dictionary<int, float>();
     private static AudioClip clipGlobalCache;
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
-        ultimaPosicao = transform.position;
         if (somBatida != null && clipGlobalCache == null)
             clipGlobalCache = somBatida;
-    }
-
-    private void Update()
-    {
-        float dt = Mathf.Max(0.0001f, Time.deltaTime);
-        Vector3 deslocamento = transform.position - ultimaPosicao;
-        velocidadePorDeslocamento = deslocamento.magnitude / dt;
-        ultimaPosicao = transform.position;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -38,14 +29,9 @@ public class ColisaoSom : MonoBehaviour
         TocarSom();
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void TentarTocarPorContato(GameObject outro, float velocidade)
     {
-        if (other == null) return;
-
-        float velocidadeRb = rb != null ? rb.linearVelocity.magnitude : 0f;
-        float velocidade = Mathf.Max(velocidadeRb, velocidadePorDeslocamento);
-        if (!PodeTocar(other.gameObject, velocidade)) return;
-
+        if (!PodeTocar(outro, velocidade)) return;
         TocarSom();
     }
 
@@ -54,19 +40,42 @@ public class ColisaoSom : MonoBehaviour
         if (outro == null) return false;
         if (Time.time - ultimoSomTempo < cooldownSom) return false;
         if (velocidade < velocidadeMinimaImpacto) return false;
+        if (outro.transform == transform || outro.transform.IsChildOf(transform) || transform.IsChildOf(outro.transform)) return false;
 
         if (outro.GetComponent<ColisaoSom>() != null) return false;
         if (outro.GetComponentInParent<ColisaoSom>() != null) return false;
 
+        int idAlvo = outro.GetInstanceID();
+        if (ultimoSomPorAlvo.TryGetValue(idAlvo, out float ultimoPorAlvo))
+        {
+            if (Time.time - ultimoPorAlvo < cooldownMesmoAlvo) return false;
+        }
+
         if (ignorarChaoERua)
         {
             string nome = outro.name.ToLowerInvariant();
-            if (nome.Contains("ground") || nome.Contains("road") || nome.Contains("pista") || nome.Contains("floor")) return false;
+            if (EhSuperficieIgnorada(nome)) return false;
         }
 
         if (EhObjetoBloqueio(outro)) return false;
 
+        ultimoSomPorAlvo[idAlvo] = Time.time;
         return true;
+    }
+
+    private bool EhSuperficieIgnorada(string nome)
+    {
+        if (string.IsNullOrEmpty(nome)) return false;
+        if (nome.Contains("ground")) return true;
+        if (nome.Contains("road")) return true;
+        if (nome.Contains("pista")) return true;
+        if (nome.Contains("floor")) return true;
+        if (nome.Contains("lane")) return true;
+        if (nome.Contains("tile")) return true;
+        if (nome.Contains("sidewalk")) return true;
+        if (nome.Contains("asfalto")) return true;
+        if (nome.Contains("rua")) return true;
+        return false;
     }
 
     private bool EhObjetoBloqueio(GameObject obj)
@@ -87,35 +96,18 @@ public class ColisaoSom : MonoBehaviour
         ultimoSomTempo = Time.time;
         AudioClip clip = somBatida != null ? somBatida : clipGlobalCache;
         if (clip == null) return;
-        TocarClipNoSistema(clip, transform.position);
+        TocarClipNoSistema(clip, transform.position, volumeBatida);
     }
 
-    public static void TocarSomBatidaGlobal(Vector3 posicao)
-    {
-        AudioClip clip = clipGlobalCache;
-        if (clip == null)
-        {
-            ColisaoSom[] sons = FindObjectsByType<ColisaoSom>(FindObjectsSortMode.None);
-            for (int i = 0; i < sons.Length; i++)
-            {
-                if (sons[i] == null || sons[i].somBatida == null) continue;
-                clip = sons[i].somBatida;
-                clipGlobalCache = clip;
-                break;
-            }
-        }
-
-        if (clip == null) return;
-        TocarClipNoSistema(clip, posicao);
-    }
-
-    private static void TocarClipNoSistema(AudioClip clip, Vector3 posicao)
+    private static void TocarClipNoSistema(AudioClip clip, Vector3 posicao, float volumeBatida)
     {
         if (clip == null) return;
+        float volume = Mathf.Clamp01(volumeBatida);
+
         if (AudiosScript.instancia != null)
         {
-            AudiosScript.instancia.TocarEfeito(clip);
-            if (AudiosScript.instancia.volumeEfeitos > 0.01f) return;
+            AudiosScript.instancia.TocarEfeito(clip, volume);
+            return;
         }
 
         GameObject emissor = new GameObject("SfxBatidaFallback");
@@ -123,7 +115,7 @@ public class ColisaoSom : MonoBehaviour
         AudioSource source = emissor.AddComponent<AudioSource>();
         source.spatialBlend = 0f; // 2D, evita sumir por distancia
         source.playOnAwake = false;
-        source.volume = 0.35f;
+        source.volume = 0.35f * volume;
         source.clip = clip;
         source.Play();
         Destroy(emissor, clip.length + 0.1f);

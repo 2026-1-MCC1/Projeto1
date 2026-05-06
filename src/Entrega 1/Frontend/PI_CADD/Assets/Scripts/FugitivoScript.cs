@@ -3,85 +3,88 @@ using UnityEngine.AI;
 
 public class FugitivoScript : MonoBehaviour
 {
+    private const int PenalidadeColisaoFugitivo = 3;
+
     [Header("Navegacao")]
-    public Transform pontoFuga;                    // Destino final de fuga
-    public float distanciaParaEscapar = 1.5f;      // Distância para considerar que escapou
+    public Transform pontoFuga;
+    public float distanciaParaEscapar = 1.5f;
 
     [Header("Captura")]
-    public float distanciaParaSerPego = 3f;        // Distância do policial para ser capturado
-    public Transform policial;                     // Referência ao policial — arrasta no Inspector
+    public float distanciaParaSerPego = 3f;
+    public Transform policial;
 
     [Header("Pontuacao")]
     public int penalidadeColisao = 3;
     public float velocidadeMinimaImpacto = 2.5f;
     public float cooldownPenalidade = 0.25f;
+    [Header("Som de Batida")]
+    public bool garantirSomBatida = true;
+
     [Header("Detector de Colisao do Cenario")]
     public float raioDetectorCenario = 1.3f;
     public float alturaDetectorCenario = 0.8f;
-    [Header("Animacao Visual")]
-    public bool garantirAnimacaoRodas = true;
 
     private NavMeshAgent fugitivo;
-    private Rigidbody rb;
     private bool foiPego = false;
     private bool escapou = false;
     private float ultimoImpactoTempo = -999f;
-    private SphereCollider detectorCenario;
 
-    void Start()
+    private void Start()
     {
+        penalidadeColisao = PenalidadeColisaoFugitivo;
+
         fugitivo = GetComponent<NavMeshAgent>();
 
         if (fugitivo == null)
         {
-            Debug.LogError("FugitivoScript: NavMeshAgent não encontrado no objeto do fugitivo.");
+            Debug.LogError("FugitivoScript: NavMeshAgent nao encontrado no objeto do fugitivo.");
             enabled = false;
             return;
         }
 
         if (pontoFuga == null)
         {
-            Debug.LogError("FugitivoScript: pontoFuga não foi atribuído no Inspector.");
+            Debug.LogError("FugitivoScript: pontoFuga nao foi atribuido no Inspector.");
             enabled = false;
             return;
         }
 
         if (!fugitivo.isOnNavMesh)
         {
-            Debug.LogError("FugitivoScript: fugitivo está fora da NavMesh.");
+            Debug.LogError("FugitivoScript: fugitivo esta fora da NavMesh.");
             enabled = false;
             return;
         }
 
-        rb = GetComponent<Rigidbody>();
+        Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
-            // Evita conflito entre física e NavMeshAgent (causa comum de deslizamento).
+            // Evita conflito entre fisica e NavMeshAgent.
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
             rb.isKinematic = true;
             rb.useGravity = false;
             rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         }
+        if (garantirSomBatida)
+            GarantirComponenteSomBatida();
 
         CriarDetectorCenarioSeNecessario();
-
-        if (garantirAnimacaoRodas)
-            GarantirAnimacaoVisualRodas();
 
         fugitivo.isStopped = false;
         fugitivo.SetDestination(pontoFuga.position);
     }
 
-    void Update()
+    private void Update()
     {
         if (foiPego || escapou) return;
 
+        // Mantem regras de vitoria/derrota avaliadas em todo frame.
         VerificarCapturaPorDistancia();
         VerificarFuga();
     }
 
-    void VerificarCapturaPorDistancia()
+    private void VerificarCapturaPorDistancia()
     {
         if (policial == null) return;
 
@@ -102,6 +105,7 @@ public class FugitivoScript : MonoBehaviour
             fugitivo.ResetPath();
         }
 
+        // Rotacao visual curta para feedback de captura.
         StartCoroutine(RodarFugitivo());
 
         if (policial != null)
@@ -111,7 +115,7 @@ public class FugitivoScript : MonoBehaviour
         }
     }
 
-    void VerificarFuga()
+    private void VerificarFuga()
     {
         if (pontoFuga == null) return;
 
@@ -147,12 +151,7 @@ public class FugitivoScript : MonoBehaviour
         }
 
         if (!PodePenalizar(collision)) return;
-
-        ColisaoSom.TocarSomBatidaGlobal(transform.position);
-
-        GameplayPartidaController partida = GameplayPartidaController.Instancia;
-        if (partida != null)
-            partida.DescontarPontos(penalidadeColisao);
+        AplicarPenalidadeColisao();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -166,55 +165,49 @@ public class FugitivoScript : MonoBehaviour
             return;
         }
 
-        if (!PodePenalizar(other)) return;
+        if (other.isTrigger) return;
+        if (other.transform == transform || other.transform.IsChildOf(transform)) return;
 
-        ColisaoSom.TocarSomBatidaGlobal(transform.position);
+        ColisaoSom somBatida = GetComponent<ColisaoSom>();
+        if (somBatida == null) return;
 
-        GameplayPartidaController partida = GameplayPartidaController.Instancia;
-        if (partida != null)
-            partida.DescontarPontos(penalidadeColisao);
+        float velocidadeAtual = fugitivo != null ? fugitivo.velocity.magnitude : 0f;
+        somBatida.TentarTocarPorContato(other.gameObject, velocidadeAtual);
+
+        if (!PodePenalizar(other.gameObject, velocidadeAtual)) return;
+        AplicarPenalidadeColisao();
     }
 
     private bool PodePenalizar(Collision collision)
     {
         if (collision == null) return false;
-        if (Time.time - ultimoImpactoTempo < cooldownPenalidade) return false;
         float velocidadeImpacto = Mathf.Max(collision.relativeVelocity.magnitude, fugitivo != null ? fugitivo.velocity.magnitude : 0f);
-        if (velocidadeImpacto < velocidadeMinimaImpacto) return false;
-
         GameObject outro = collision.gameObject;
+        return PodePenalizar(outro, velocidadeImpacto);
+    }
+
+    private bool PodePenalizar(GameObject outro, float velocidadeImpacto)
+    {
+        if (Time.time - ultimoImpactoTempo < cooldownPenalidade) return false;
+        if (velocidadeImpacto < velocidadeMinimaImpacto) return false;
         if (outro == null) return false;
 
         if (outro.GetComponent<PolicialScript>() != null) return false;
         if (outro.GetComponent<FugitivoScript>() != null) return false;
+        if (outro.GetComponentInParent<BloqueioPosicionamentoArea>() != null) return false;
 
         string nome = outro.name.ToLowerInvariant();
-        if (nome.Contains("ground") || nome.Contains("road")) return false;
+        if (nome.Contains("ground") || nome.Contains("road") || nome.Contains("pista") || nome.Contains("lane") || nome.Contains("tile") || nome.Contains("bloqueio")) return false;
 
         ultimoImpactoTempo = Time.time;
         return true;
     }
 
-    private bool PodePenalizar(Collider outroCollider)
+    private void AplicarPenalidadeColisao()
     {
-        if (outroCollider == null) return false;
-        if (Time.time - ultimoImpactoTempo < cooldownPenalidade) return false;
-        if (fugitivo != null && fugitivo.velocity.magnitude < velocidadeMinimaImpacto) return false;
-
-        GameObject outro = outroCollider.gameObject;
-        if (outro == null) return false;
-        if (outro == gameObject) return false;
-
-        if (outro.GetComponent<PolicialScript>() != null) return false;
-        if (outro.GetComponent<FugitivoScript>() != null) return false;
-
-        string nome = outro.name.ToLowerInvariant();
-        if (nome.Contains("ground") || nome.Contains("road")) return false;
-
-        if (outroCollider.isTrigger) return false;
-
-        ultimoImpactoTempo = Time.time;
-        return true;
+        GameplayPartidaController partida = GameplayPartidaController.Instancia;
+        if (partida != null)
+            partida.DescontarPontos(penalidadeColisao);
     }
 
     private void CriarDetectorCenarioSeNecessario()
@@ -222,8 +215,8 @@ public class FugitivoScript : MonoBehaviour
         Transform existente = transform.Find("DetectorColisaoCenario");
         if (existente != null)
         {
-            detectorCenario = existente.GetComponent<SphereCollider>();
-            if (detectorCenario != null) detectorCenario.isTrigger = true;
+            SphereCollider detectorExistente = existente.GetComponent<SphereCollider>();
+            if (detectorExistente != null) detectorExistente.isTrigger = true;
             return;
         }
 
@@ -233,12 +226,12 @@ public class FugitivoScript : MonoBehaviour
         detector.transform.localPosition = new Vector3(0f, alturaDetectorCenario, 0f);
         detector.transform.localScale = Vector3.one;
 
-        detectorCenario = detector.AddComponent<SphereCollider>();
-        detectorCenario.isTrigger = true;
-        detectorCenario.radius = Mathf.Max(0.5f, raioDetectorCenario);
+        SphereCollider novoDetector = detector.AddComponent<SphereCollider>();
+        novoDetector.isTrigger = true;
+        novoDetector.radius = Mathf.Max(0.5f, raioDetectorCenario);
     }
 
-    System.Collections.IEnumerator RodarFugitivo()
+    private System.Collections.IEnumerator RodarFugitivo()
     {
         float tempo = 0f;
         float duracaoRotacao = 3f;
@@ -253,12 +246,26 @@ public class FugitivoScript : MonoBehaviour
         Debug.Log("Fugitivo foi pego!");
     }
 
-    private void GarantirAnimacaoVisualRodas()
+    private void GarantirComponenteSomBatida()
     {
-        AnimacaoVisualRodasCarro animacao = GetComponent<AnimacaoVisualRodasCarro>();
-        if (animacao == null)
-            animacao = gameObject.AddComponent<AnimacaoVisualRodasCarro>();
+        ColisaoSom meuSom = GetComponent<ColisaoSom>();
+        if (meuSom != null) return;
 
-        animacao.AutoDetectarRodas();
+        meuSom = gameObject.AddComponent<ColisaoSom>();
+        ColisaoSom[] referencias = FindObjectsByType<ColisaoSom>(FindObjectsSortMode.None);
+        for (int i = 0; i < referencias.Length; i++)
+        {
+            ColisaoSom referencia = referencias[i];
+            if (referencia == null || referencia == meuSom || referencia.somBatida == null) continue;
+
+            meuSom.somBatida = referencia.somBatida;
+            meuSom.volumeBatida = referencia.volumeBatida;
+            meuSom.velocidadeMinimaImpacto = referencia.velocidadeMinimaImpacto;
+            meuSom.cooldownSom = referencia.cooldownSom;
+            meuSom.cooldownMesmoAlvo = referencia.cooldownMesmoAlvo;
+            meuSom.ignorarChaoERua = referencia.ignorarChaoERua;
+            break;
+        }
     }
+
 }

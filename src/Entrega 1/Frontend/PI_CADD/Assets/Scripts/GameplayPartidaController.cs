@@ -73,14 +73,19 @@ public class GameplayPartidaController : MonoBehaviour
     {
         if (partidaFinalizada) return;
         partidaFinalizada = true;
-        MostrarTelaFinal("Capturado", $"Voce fez {pontosAtuais} pontos", false);
+        MostrarTelaFinal("Parabéns Fugitivo Capturado!", $"Você fez {pontosAtuais} pontos", false);
     }
 
     public void RegistrarFuga()
     {
         if (partidaFinalizada) return;
         partidaFinalizada = true;
-        MostrarTelaFinal("Ele escapou", $"Voce fez {pontosAtuais} pontos", true);
+
+        // Se o fugitivo escapar, a missao falhou e a pontuacao final zera.
+        pontosAtuais = 0;
+        AtualizarTextoPontos();
+
+        MostrarTelaFinal("A Missão Falhou!", $"Voce fez {pontosAtuais} pontos", true);
     }
 
     private void AtualizarTextoPontos()
@@ -91,6 +96,7 @@ public class GameplayPartidaController : MonoBehaviour
 
     private void MostrarTelaFinal(string titulo, string textoPontosFinal, bool permitirReiniciar)
     {
+        // A tela final sempre pausa o jogo para impedir entrada apos o resultado.
         if (tituloFim != null) tituloFim.text = titulo;
         if (pontosFim != null) pontosFim.text = textoPontosFinal;
         if (botaoReiniciarFim != null) botaoReiniciarFim.SetActive(permitirReiniciar);
@@ -134,6 +140,7 @@ public class GameplayPartidaController : MonoBehaviour
 
     private void EncontrarReferenciasUISeNecessario()
     {
+        // Fallback para evitar cena quebrada caso alguma referencia nao tenha sido ligada no Inspector.
         if (textoPontos == null)
         {
             GameObject obj = GameObject.Find("TextoPontos");
