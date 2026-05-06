@@ -20,6 +20,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
 
     [Header("Planejamento")]
     public bool registrarNoPlanejamento = false; // Liga para salvar os itens colocados antes da perseguição
+    public bool manterObjetoEstaticoAoSoltar = false; // Se true, não ativa física no objeto ao soltar
 
     private GameObject objetoArrastando;         // Referência ao objeto sendo arrastado
     private bool arrastando = false;             // Controla se está arrastando no momento
@@ -59,6 +60,8 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
         {
             rb.isKinematic = true;               // Desativa a física enquanto arrasta
             rb.useGravity = false;               // Desativa gravidade enquanto arrasta
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
         }
 
         // Desativa o collider enquanto arrasta para não bugar com os carros
@@ -102,17 +105,26 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
             return;
         }
 
+        bool manterEstatico = manterObjetoEstaticoAoSoltar || registrarNoPlanejamento;
+
         Rigidbody rb = objetoArrastando.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.isKinematic = false;              // Reativa a física ao soltar
-            rb.useGravity = true;                // Reativa gravidade ao soltar
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = manterEstatico ? true : false;
+            rb.useGravity = manterEstatico ? false : true;
         }
 
         // Reativa o collider DEPOIS de um pequeno delay para não bugar com carros em movimento
         Collider col = objetoArrastando.GetComponent<Collider>();
         if (col != null)
-            StartCoroutine(ReativarCollider(col)); // Reativa com delay via Coroutine
+        {
+            if (manterEstatico)
+                col.enabled = true;
+            else
+                StartCoroutine(ReativarCollider(col)); // Reativa com delay via Coroutine
+        }
 
         quantidadeAtual = Mathf.Max(0, quantidadeAtual - 1);
         AtualizarUI();                           // Atualiza o visual da quantidade

@@ -11,24 +11,50 @@ public class AplicarPlanejamentoNaPerseguicao : MonoBehaviour
     [SerializeField] private bool adicionarNavMeshObstacle = true;
     [SerializeField] private bool obstacleCarve = true;
 
+    [Header("Gameplay")]
+    [SerializeField] private bool desativarArrasteNaPerseguicaoQuandoUsarPlanejamento = true;
+
     private void Awake()
     {
-        if (!PlanejamentoRuntimeData.TemItensPlanejados) return;
+        bool temPlano = PlanejamentoRuntimeData.TemItensPlanejados;
 
-        foreach (PlanejamentoRuntimeData.ItemPlanejado item in PlanejamentoRuntimeData.ItensPlanejados)
+        if (temPlano)
         {
-            if (item.prefab == null) continue;
+            foreach (PlanejamentoRuntimeData.ItemPlanejado item in PlanejamentoRuntimeData.ItensPlanejados)
+            {
+                if (item.prefab == null) continue;
 
-            GameObject instancia = Instantiate(item.prefab, item.position, item.rotation, parentDosItens);
-            instancia.transform.localScale = item.scale;
+                GameObject instancia = Instantiate(item.prefab, item.position, item.rotation, parentDosItens);
+                instancia.transform.localScale = item.scale;
 
-            if (!adicionarNavMeshObstacle) continue;
+                Rigidbody rb = instancia.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.linearVelocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                    rb.isKinematic = true;
+                    rb.useGravity = false;
+                }
 
-            NavMeshObstacle obstacle = instancia.GetComponent<NavMeshObstacle>();
-            if (obstacle == null)
-                obstacle = instancia.AddComponent<NavMeshObstacle>();
+                Collider col = instancia.GetComponent<Collider>();
+                if (col != null) col.enabled = true;
 
-            obstacle.carving = obstacleCarve;
+                if (!adicionarNavMeshObstacle) continue;
+
+                NavMeshObstacle obstacle = instancia.GetComponent<NavMeshObstacle>();
+                if (obstacle == null)
+                    obstacle = instancia.AddComponent<NavMeshObstacle>();
+
+                obstacle.carving = obstacleCarve;
+                obstacle.carveOnlyStationary = true;
+            }
+        }
+
+        if (desativarArrasteNaPerseguicaoQuandoUsarPlanejamento && temPlano)
+        {
+            ArrastarItemScript[] itensArrastaveis = FindObjectsByType<ArrastarItemScript>(FindObjectsSortMode.None);
+            foreach (ArrastarItemScript itemArrastavel in itensArrastaveis)
+                itemArrastavel.enabled = false;
         }
 
         if (limparPlanoAposInstanciar)

@@ -6,8 +6,18 @@ public class PlanejamentoCenaController : MonoBehaviour
     [Header("Cenas")]
     [SerializeField] private string cenaPerseguicao = "CenaPrincipal";
     [SerializeField] private string cenaMenu = "Menu";
+
     [Header("Atalhos")]
     [SerializeField] private bool habilitarAtalhoEnter = true;
+
+    [Header("Planejamento")]
+    [SerializeField] private bool congelarRigidbodiesDaCena = true;
+
+    private void Start()
+    {
+        if (congelarRigidbodiesDaCena)
+            CongelarRigidbodiesExistentes();
+    }
 
     private void Update()
     {
@@ -37,5 +47,20 @@ public class PlanejamentoCenaController : MonoBehaviour
 
         if (Application.CanStreamedLevelBeLoaded(cenaMenu))
             SceneManager.LoadScene(cenaMenu);
+    }
+
+    private void CongelarRigidbodiesExistentes()
+    {
+        Rigidbody[] rigidbodies = FindObjectsByType<Rigidbody>(FindObjectsSortMode.None);
+
+        foreach (Rigidbody rb in rigidbodies)
+        {
+            if (rb == null) continue;
+
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true;
+            rb.useGravity = false;
+        }
     }
 }

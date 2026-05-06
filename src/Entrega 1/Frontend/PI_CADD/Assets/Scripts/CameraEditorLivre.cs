@@ -6,7 +6,6 @@ public class CameraEditorLivre : MonoBehaviour
     public float velocidade = 35f;
     public float multiplicadorSprint = 2f;
     public float multiplicadorLento = 0.4f;
-    public float velocidadeVertical = 20f;
 
     [Header("Rotacao")]
     public bool olharComBotaoDireito = true;
@@ -59,12 +58,6 @@ public class CameraEditorLivre : MonoBehaviour
             multiplicador = multiplicadorLento;
 
         Vector3 movimento = direcaoPlano * velocidade * multiplicador * Time.deltaTime;
-
-        float vertical = 0f;
-        if (Input.GetKey(KeyCode.E)) vertical += 1f;
-        if (Input.GetKey(KeyCode.Q)) vertical -= 1f;
-
-        movimento.y = vertical * velocidadeVertical * Time.deltaTime;
 
         transform.position += movimento;
 
