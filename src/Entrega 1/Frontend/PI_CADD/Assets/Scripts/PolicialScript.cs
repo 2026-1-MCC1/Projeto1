@@ -17,11 +17,24 @@ public class PolicialScript : MonoBehaviour
     void Start()
     {
         policial = GetComponent<NavMeshAgent>();
+
+        if (policial == null)
+        {
+            Debug.LogError("PolicialScript: NavMeshAgent não encontrado no objeto do policial.");
+            enabled = false;
+            return;
+        }
+
+        if (seguirFugitivo == null)
+        {
+            Debug.LogError("PolicialScript: seguirFugitivo não foi atribuído no Inspector.");
+            enabled = false;
+        }
     }
 
     void Update()
     {
-        if (!ativo) return;
+        if (!ativo || policial == null || seguirFugitivo == null) return;
 
         VerificarBloqueio();                       // Verifica se passou pelo ponto de bloqueio
 
@@ -46,12 +59,12 @@ public class PolicialScript : MonoBehaviour
     public void FugitivoEscapou()
     {
         ativo = false;
-        policial.isStopped = true;
+        if (policial != null) policial.isStopped = true;
     }
 
     public void FugitivoPego()
     {
         ativo = false;
-        policial.isStopped = true;
+        if (policial != null) policial.isStopped = true;
     }
 }

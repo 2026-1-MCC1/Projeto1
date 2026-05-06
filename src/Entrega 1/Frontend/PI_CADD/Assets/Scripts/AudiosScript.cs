@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class AudiosScript : MonoBehaviour
 {
     public static AudiosScript instancia;
 
-    [Header("Fontes de áudio")]
+    [Header("Fontes de Audio")]
     public AudioSource musicaSource;
     public AudioSource efeitosSource;
 
@@ -23,9 +23,9 @@ public class AudiosScript : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return;
         }
 
-        // 🔥 FORÇA O VOLUME LOGO NO INÍCIO
         AplicarVolume();
     }
 
@@ -39,15 +39,15 @@ public class AudiosScript : MonoBehaviour
         SceneManager.sceneLoaded -= QuandoTrocarCena;
     }
 
-    void QuandoTrocarCena(Scene scene, LoadSceneMode mode)
+    private void QuandoTrocarCena(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name != "Menu") // coloque o nome correto da sua cena
+        if (scene.name != "Menu" && musicaSource != null && musicaSource.isPlaying)
         {
             musicaSource.Stop();
         }
     }
 
-    void AplicarVolume()
+    private void AplicarVolume()
     {
         if (musicaSource != null)
             musicaSource.volume = volumeMusica;
@@ -70,21 +70,18 @@ public class AudiosScript : MonoBehaviour
 
     public void TocarMusica(AudioClip clip)
     {
-        if (clip == null) return;
+        if (clip == null || musicaSource == null) return;
+        if (musicaSource.clip == clip && musicaSource.isPlaying) return;
 
         musicaSource.clip = clip;
         musicaSource.loop = true;
-
-        // 🔥 GARANTE volume correto antes de tocar
         musicaSource.volume = volumeMusica;
-
         musicaSource.Play();
     }
 
     public void TocarEfeito(AudioClip clip)
     {
-        if (clip == null) return;
-
+        if (clip == null || efeitosSource == null) return;
         efeitosSource.PlayOneShot(clip, volumeEfeitos);
     }
 }

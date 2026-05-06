@@ -18,20 +18,36 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
     public int quantidadeMaxima = 3;             // Quantidade máxima disponível deste item
     private int quantidadeAtual;                 // Quantidade restante em tempo real
 
+    [Header("Planejamento")]
+    public bool registrarNoPlanejamento = false; // Liga para salvar os itens colocados antes da perseguição
+
     private GameObject objetoArrastando;         // Referência ao objeto sendo arrastado
     private bool arrastando = false;             // Controla se está arrastando no momento
+    private bool tevePosicionamentoValido = false;
+    private Camera cameraPrincipal;
 
     void Start()
     {
         quantidadeAtual = quantidadeMaxima;      // Inicializa com a quantidade máxima
+        cameraPrincipal = Camera.main;
     }
 
     // Chamado UMA VEZ quando o dedo/mouse começa a arrastar
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (quantidadeAtual <= 0) return;        // Bloqueia se não tiver mais itens disponíveis
+        if (quantidadeAtual <= 0 || prefabDoItem == null) return; // Bloqueia sem item ou sem prefab
+
+        if (cameraPrincipal == null)
+            cameraPrincipal = Camera.main;
+
+        if (cameraPrincipal == null)
+        {
+            Debug.LogError("ArrastarItemScript: nenhuma câmera principal encontrada para raycast.");
+            return;
+        }
 
         arrastando = true;                       // Marca que está arrastando
+        tevePosicionamentoValido = false;
 
         objetoArrastando = Instantiate(prefabDoItem); // Cria uma cópia do prefab na cena
         objetoArrastando.transform.localScale = escalaPadrao;                   // Aplica a escala
@@ -45,7 +61,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
             rb.useGravity = false;               // Desativa gravidade enquanto arrasta
         }
 
-        // Desativa o collider enquanto arrasta para não buguar com os carros
+        // Desativa o collider enquanto arrasta para não bugar com os carros
         Collider col = objetoArrastando.GetComponent<Collider>();
         if (col != null)
             col.enabled = false;                 // Collider desligado — carros passam por cima sem bug
@@ -54,9 +70,9 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
     // Chamado A CADA FRAME enquanto o dedo/mouse estiver arrastando
     public void OnDrag(PointerEventData eventData)
     {
-        if (!arrastando || objetoArrastando == null) return; // Segurança
+        if (!arrastando || objetoArrastando == null || cameraPrincipal == null) return;
 
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); // Raio da câmera ao mouse
+        Ray ray = cameraPrincipal.ScreenPointToRay(eventData.position); // Funciona para mouse e touch
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit))       // Se o raio acertou algum collider na cena
@@ -64,9 +80,11 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
             Vector3 pos = hit.point + offsetPosicao; // Posição do hit + offset
 
             Collider col = objetoArrastando.GetComponent<Collider>();
-            pos.y = (col != null ? col.bounds.extents.y : 0.5f) + offsetPosicao.y; // Altura correta
+            float alturaCollider = col != null ? col.bounds.extents.y : 0.5f;
+            pos.y = hit.point.y + alturaCollider + offsetPosicao.y; // Mantém item alinhado ao chão
 
             objetoArrastando.transform.position = pos; // Move o objeto
+            tevePosicionamentoValido = true;
         }
     }
 
@@ -77,6 +95,13 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
 
         arrastando = false;                      // Marca que parou de arrastar
 
+        if (!tevePosicionamentoValido)
+        {
+            Destroy(objetoArrastando);           // Não consome item se não foi possível posicionar
+            objetoArrastando = null;
+            return;
+        }
+
         Rigidbody rb = objetoArrastando.GetComponent<Rigidbody>();
         if (rb != null)
         {
@@ -84,13 +109,16 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
             rb.useGravity = true;                // Reativa gravidade ao soltar
         }
 
-        // Reativa o collider DEPOIS de um pequeno delay para não buguar com carros em movimento
+        // Reativa o collider DEPOIS de um pequeno delay para não bugar com carros em movimento
         Collider col = objetoArrastando.GetComponent<Collider>();
         if (col != null)
             StartCoroutine(ReativarCollider(col)); // Reativa com delay via Coroutine
 
-        quantidadeAtual--;                       // Desconta uma unidade do estoque
+        quantidadeAtual = Mathf.Max(0, quantidadeAtual - 1);
         AtualizarUI();                           // Atualiza o visual da quantidade
+
+        if (registrarNoPlanejamento)
+            PlanejamentoRuntimeData.RegistrarItem(prefabDoItem, objetoArrastando.transform);
 
         objetoArrastando = null;                 // Limpa a referência
     }
@@ -113,6 +141,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
                 : new Color(1, 1, 1, 1f);        // Normal quando tem estoque
 
         // Log para debug — remove depois
-        Debug.Log($"{prefabDoItem.name}: {quantidadeAtual}/{quantidadeMaxima} restantes");
+        if (prefabDoItem != null)
+            Debug.Log($"{prefabDoItem.name}: {quantidadeAtual}/{quantidadeMaxima} restantes");
     }
 }

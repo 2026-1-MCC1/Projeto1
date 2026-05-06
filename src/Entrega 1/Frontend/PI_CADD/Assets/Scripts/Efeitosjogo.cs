@@ -7,8 +7,7 @@ public class EfeitosJogo : MonoBehaviour
 
     private void Start()
     {
-        // Toca a sirene em loop
-        if (sirene != null)
+        if (sirene != null && AudiosScript.instancia != null && AudiosScript.instancia.efeitosSource != null)
         {
             AudiosScript.instancia.efeitosSource.clip = sirene;
             AudiosScript.instancia.efeitosSource.loop = true;
@@ -18,6 +17,7 @@ public class EfeitosJogo : MonoBehaviour
 
     public void TocarBatida()
     {
+        if (AudiosScript.instancia == null) return;
         AudiosScript.instancia.TocarEfeito(batida);
     }
 }

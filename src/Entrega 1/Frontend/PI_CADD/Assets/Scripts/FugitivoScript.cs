@@ -18,6 +18,28 @@ public class FugitivoScript : MonoBehaviour
     void Start()
     {
         fugitivo = GetComponent<NavMeshAgent>();
+
+        if (fugitivo == null)
+        {
+            Debug.LogError("FugitivoScript: NavMeshAgent não encontrado no objeto do fugitivo.");
+            enabled = false;
+            return;
+        }
+
+        if (pontoFuga == null)
+        {
+            Debug.LogError("FugitivoScript: pontoFuga não foi atribuído no Inspector.");
+            enabled = false;
+            return;
+        }
+
+        if (!fugitivo.isOnNavMesh)
+        {
+            Debug.LogError("FugitivoScript: fugitivo está fora da NavMesh.");
+            enabled = false;
+            return;
+        }
+
         fugitivo.SetDestination(pontoFuga.position);
     }
 
@@ -48,12 +70,16 @@ public class FugitivoScript : MonoBehaviour
 
     void VerificarFuga()
     {
+        if (pontoFuga == null) return;
+
         float distanciaAoPonto = Vector3.Distance(transform.position, pontoFuga.position);
 
         if (distanciaAoPonto <= distanciaParaEscapar)
         {
             escapou = true;
             Debug.Log("Fugitivo escapou!");
+
+            if (policial == null) return;
 
             PolicialScript ps = policial.GetComponent<PolicialScript>();
             if (ps != null) ps.FugitivoEscapou();

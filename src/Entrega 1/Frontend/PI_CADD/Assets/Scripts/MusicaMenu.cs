@@ -1,17 +1,21 @@
-﻿using UnityEngine;
+using System.Collections;
+using UnityEngine;
 
 public class MenuMusic : MonoBehaviour
 {
     public AudioClip musicaMenu;
 
-    IEnumerator Start()
+    private IEnumerator Start()
     {
-        // 🔥 espera 1 frame para garantir que o AudioManager aplicou o volume
+        // Espera 1 frame para garantir que o AudioManager já inicializou.
         yield return null;
 
-        if (AudiosScript.instancia != null)
+        if (AudiosScript.instancia == null)
         {
-            AudiosScript.instancia.TocarMusica(musicaMenu);
+            Debug.LogWarning("MenuMusic: AudiosScript.instancia não encontrada na cena.");
+            yield break;
         }
+
+        AudiosScript.instancia.TocarMusica(musicaMenu);
     }
 }

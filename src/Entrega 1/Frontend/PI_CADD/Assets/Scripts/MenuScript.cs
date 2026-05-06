@@ -3,18 +3,27 @@ using UnityEngine.SceneManagement;
 
 public class MenuScript : MonoBehaviour
 {
-    
+
     [SerializeField] private GameObject painelMenuInicial;
     [SerializeField] private GameObject painelOpcoes;
     [SerializeField] private GameObject painelCreditos;
     [SerializeField] private GameObject painelGameOver;
+    [SerializeField] private bool usarCenaPlanejamento = true;
+    [SerializeField] private string cenaPlanejamento = "CenaPlanejamento";
+    [SerializeField] private string cenaPerseguicaoDireta = "CenaPrincipal";
 
     // Fun��o chamada quando o jogador clica em "Iniciar Jogo"
     // Aqui voc� pode colocar o c�digo para carregar a cena do jogo
     public void IniciarJogo()
     {
        painelMenuInicial.SetActive(false);
-       SceneManager.LoadScene("CenaPrincipal");
+       PlanejamentoRuntimeData.LimparPlano();
+
+       string cenaDestino = cenaPerseguicaoDireta;
+       if (usarCenaPlanejamento && Application.CanStreamedLevelBeLoaded(cenaPlanejamento))
+           cenaDestino = cenaPlanejamento;
+
+       SceneManager.LoadScene(cenaDestino);
     }
 
     // Abre o painel de op��es e esconde o menu inicial
