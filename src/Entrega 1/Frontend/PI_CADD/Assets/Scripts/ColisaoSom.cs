@@ -6,15 +6,15 @@ public class ColisaoSom : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("COLIDIU COM: " + collision.gameObject.name);
+        // Só toca se colidir com objetos específicos
+        if (collision.gameObject.CompareTag("ObjetoJogavel"))
+        {
+            Debug.Log("BATIDA VALIDA!");
 
-        if (somBatida != null && AudiosScript.instancia != null)
-        {
-            AudiosScript.instancia.TocarEfeito(somBatida);
-        }
-        else
-        {
-            Debug.LogWarning("Som de batida ou AudioManager não encontrado!");
+            if (somBatida != null && AudiosScript.instancia != null)
+            {
+                AudiosScript.instancia.TocarEfeito(somBatida);
+            }
         }
     }
 }

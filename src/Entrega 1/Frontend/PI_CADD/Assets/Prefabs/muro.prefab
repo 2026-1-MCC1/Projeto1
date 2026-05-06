@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 2613191787520631330}
   m_Layer: 0
   m_Name: muro
-  m_TagString: Untagged
+  m_TagString: ObjetoJogavel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -1,18 +1,17 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class MenuMusic : MonoBehaviour
 {
     public AudioClip musicaMenu;
 
-    void Start()
+    IEnumerator Start()
     {
+        // 🔥 espera 1 frame para garantir que o AudioManager aplicou o volume
+        yield return null;
+
         if (AudiosScript.instancia != null)
         {
             AudiosScript.instancia.TocarMusica(musicaMenu);
-        }
-        else
-        {
-            Debug.LogError("AudioManager n�o encontrado!");
         }
     }
 }
