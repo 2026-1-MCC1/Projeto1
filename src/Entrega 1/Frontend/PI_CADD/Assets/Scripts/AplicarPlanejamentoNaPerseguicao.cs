@@ -12,7 +12,9 @@ public class AplicarPlanejamentoNaPerseguicao : MonoBehaviour
     [SerializeField] private bool obstacleCarve = true;
 
     [Header("Gameplay")]
-    [SerializeField] private bool desativarArrasteNaPerseguicaoQuandoUsarPlanejamento = true;
+    [SerializeField] private bool ocultarHotbarNaPerseguicao = true;
+    [SerializeField] private bool desativarArrasteNaPerseguicao = true;
+    [SerializeField] private bool desativarBloqueiosDePlanejamentoNaPerseguicao = true;
 
     private void Awake()
     {
@@ -50,14 +52,49 @@ public class AplicarPlanejamentoNaPerseguicao : MonoBehaviour
             }
         }
 
-        if (desativarArrasteNaPerseguicaoQuandoUsarPlanejamento && temPlano)
+        if (desativarArrasteNaPerseguicao)
         {
             ArrastarItemScript[] itensArrastaveis = FindObjectsByType<ArrastarItemScript>(FindObjectsSortMode.None);
             foreach (ArrastarItemScript itemArrastavel in itensArrastaveis)
                 itemArrastavel.enabled = false;
         }
 
+        if (ocultarHotbarNaPerseguicao)
+        {
+            GameObject hotbar = GameObject.Find("Hotbar");
+            if (hotbar != null) hotbar.SetActive(false);
+        }
+
+        if (desativarBloqueiosDePlanejamentoNaPerseguicao)
+            DesativarBloqueiosDePlanejamento();
+
         if (limparPlanoAposInstanciar)
             PlanejamentoRuntimeData.LimparPlano();
+    }
+
+    private void DesativarBloqueiosDePlanejamento()
+    {
+        BloqueioPosicionamentoArea[] bloqueios = FindObjectsByType<BloqueioPosicionamentoArea>(FindObjectsSortMode.None);
+        for (int i = 0; i < bloqueios.Length; i++)
+        {
+            if (bloqueios[i] == null) continue;
+            Collider[] cols = bloqueios[i].GetComponentsInChildren<Collider>(true);
+            for (int c = 0; c < cols.Length; c++)
+            {
+                if (cols[c] != null)
+                    cols[c].enabled = false;
+            }
+        }
+
+        GameObject pontoBloqueio = GameObject.Find("PontoBloqueio");
+        if (pontoBloqueio != null)
+        {
+            Collider[] cols = pontoBloqueio.GetComponentsInChildren<Collider>(true);
+            for (int c = 0; c < cols.Length; c++)
+            {
+                if (cols[c] != null)
+                    cols[c].enabled = false;
+            }
+        }
     }
 }

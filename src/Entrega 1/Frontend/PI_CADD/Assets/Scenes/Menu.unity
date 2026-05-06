@@ -998,7 +998,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.3
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -2406,6 +2406,9 @@ MonoBehaviour:
   painelOpcoes: {fileID: 653905170}
   painelCreditos: {fileID: 733305492}
   painelGameOver: {fileID: 0}
+  usarCenaPlanejamento: 1
+  cenaPlanejamento: CenaPlanejamento
+  cenaPerseguicaoDireta: CenaPrincipal
 --- !u!1 &1091482510
 GameObject:
   m_ObjectHideFlags: 0
@@ -3571,6 +3574,9 @@ MonoBehaviour:
   painelOpcoes: {fileID: 653905170}
   painelCreditos: {fileID: 733305492}
   painelGameOver: {fileID: 1127307488}
+  usarCenaPlanejamento: 1
+  cenaPlanejamento: CenaPlanejamento
+  cenaPerseguicaoDireta: CenaPrincipal
 --- !u!4 &1761478411
 Transform:
   m_ObjectHideFlags: 0
