@@ -12,7 +12,7 @@
 <a href="https://www.linkedin.com/in/andre-makoto-molitorlitor-9aa6b7358">Andre Makoto Molitor</a>, <a href="https://www.linkedin.com/in/caio-fabio-ba3943392/">Caio Fabio Freitas</a>, <a href="https://www.linkedin.com/in/davivarella/">Davi Varella</a> e <a href="https://www.linkedin.com/in/davi-moraes-675642260/">Davi Moraes</a>  
 
 ## 👨‍🏫 Professores Orientadores  
-<a href="https://www.linkedin.com/in/adriano-valente-534576135/">Adriano Felix Valente</a>, <a href="https://www.linkedin.com/in/dolemes/">David de Oliveira Lemes</a>, <a href="https://www.linkedin.com/in/eduardo-savino-gomes-77833a10/">Eduardo Savino Gomes</a>, <a href="https://www.linkedin.com/in/remuniz/">Renata Muniz do Nascimento</a>, <a href="https://www.linkedin.com/in/victorbarq/">Victor Bruno Alexander Rosetti de Quiroz</a>  
+<a href="https://www.linkedin.com/in/adriano-valente-534576135/">Adriano Felix Valente</a>, <a href="https://www.linkedin.com/in/dolemes/">David de Oliveira Lemes</a>, <a href="https://www.linkedin.com/in/eduardo-savino-gomes-77833a10/">Eduardo Savino Gomes</a>, <a href="https://www.linkedin.com/in/luisspires/">Luis Pires</a> <a href="https://www.linkedin.com/in/remuniz/">Renata Muniz do Nascimento</a>, <a href="https://www.linkedin.com/in/victorbarq/">Victor Bruno Alexander Rosetti de Quiroz</a>  
 
 ---
 
@@ -96,7 +96,7 @@ Passos:
 
 ## 📋 Licença
 
-<a href="https://github.com/2026-1-MCC1/Projeto1"> Urban Chase </a> © 2026 by <a href="https://github.com/2026-1-MCC1/Projeto1"> André Makoto Molitor, Caio Fabio Freitas, Davi George Varella da Silva, Davi Moraes Muniz</a> <br> is licensed under <a href="https://creativecommons.org/licenses/by/4.0/"> Creative Commons Attribution 4.0 International<a> <br> <img src="gttps://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;">
+<a href="https://github.com/2026-1-MCC1/Projeto1"> Urban Chase </a> © 2026 by <a href="https://github.com/2026-1-MCC1/Projeto1"> André Makoto Molitor, Caio Fabio Freitas, Davi George Varella da Silva, Davi Moraes Muniz, Fundação Escola de Comércio Álvares Penteado (FECAP)</a> <br> is licensed under <a href="https://creativecommons.org/licenses/by/4.0/"> Creative Commons Attribution 4.0 International<a> <br> <img src="gttps://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;">
 
 ## 🎓 Referências
 
