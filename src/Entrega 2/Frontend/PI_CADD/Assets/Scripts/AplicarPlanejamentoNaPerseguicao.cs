@@ -7,10 +7,6 @@ public class AplicarPlanejamentoNaPerseguicao : MonoBehaviour
     [SerializeField] private Transform parentDosItens;
     [SerializeField] private bool limparPlanoAposInstanciar = true;
 
-    [Header("NavMesh Obstacle")]
-    [SerializeField] private bool adicionarNavMeshObstacle = true;
-    [SerializeField] private bool obstacleCarve = true;
-
     [Header("Gameplay")]
     [SerializeField] private bool ocultarHotbarNaPerseguicao = true;
     [SerializeField] private bool desativarArrasteNaPerseguicao = true;
