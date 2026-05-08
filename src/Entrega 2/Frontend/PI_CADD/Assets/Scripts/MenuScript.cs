@@ -14,7 +14,10 @@ public class MenuScript : MonoBehaviour
     // Inicia o jogo pela cena de planejamento (quando habilitado) ou direto na perseguicao.
     public void IniciarJogo()
     {
+        // Fecha o menu principal antes de trocar de cena.
         if (painelMenuInicial != null) painelMenuInicial.SetActive(false);
+
+        // Limpa qualquer plano antigo para a nova partida começar do zero.
         PlanejamentoRuntimeData.LimparPlano();
 
         string cenaDestino = cenaPerseguicaoDireta;
@@ -41,6 +44,7 @@ public class MenuScript : MonoBehaviour
     // Abre o painel de creditos.
     public void AbrirCreditos()
     {
+        // Mostra créditos e esconde menu inicial.
         if (painelCreditos != null) painelCreditos.SetActive(true);
         if (painelMenuInicial != null) painelMenuInicial.SetActive(false);
     }
@@ -48,6 +52,7 @@ public class MenuScript : MonoBehaviour
     // Fecha o painel de creditos.
     public void SairCreditos()
     {
+        // Volta para o menu principal.
         if (painelCreditos != null) painelCreditos.SetActive(false);
         if (painelMenuInicial != null) painelMenuInicial.SetActive(true);
     }

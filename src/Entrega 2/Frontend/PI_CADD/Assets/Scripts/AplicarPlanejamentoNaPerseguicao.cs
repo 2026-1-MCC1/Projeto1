@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.AI;
 
 public class AplicarPlanejamentoNaPerseguicao : MonoBehaviour
 {
@@ -14,10 +13,12 @@ public class AplicarPlanejamentoNaPerseguicao : MonoBehaviour
 
     private void Awake()
     {
+        // Verifica se o jogador colocou itens na fase de planejamento.
         bool temPlano = PlanejamentoRuntimeData.TemItensPlanejados;
 
         if (temPlano)
         {
+            // Recria cada item planejado na cena de perseguição.
             foreach (PlanejamentoRuntimeData.ItemPlanejado item in PlanejamentoRuntimeData.ItensPlanejados)
             {
                 if (item.prefab == null) continue;
@@ -32,6 +33,7 @@ public class AplicarPlanejamentoNaPerseguicao : MonoBehaviour
 
         if (desativarArrasteNaPerseguicao)
         {
+            // Na perseguição não queremos criar itens novos arrastando ícones.
             ArrastarItemScript[] itensArrastaveis = FindObjectsByType<ArrastarItemScript>(FindObjectsSortMode.None);
             foreach (ArrastarItemScript itemArrastavel in itensArrastaveis)
                 itemArrastavel.enabled = false;
@@ -39,6 +41,7 @@ public class AplicarPlanejamentoNaPerseguicao : MonoBehaviour
 
         if (ocultarHotbarNaPerseguicao)
         {
+            // Esconde a barra de itens para limpar a interface.
             GameObject hotbar = GameObject.Find("Hotbar");
             if (hotbar != null) hotbar.SetActive(false);
         }
@@ -52,6 +55,7 @@ public class AplicarPlanejamentoNaPerseguicao : MonoBehaviour
 
     private void DesativarBloqueiosDePlanejamento()
     {
+        // Desliga os colliders usados só para impedir posicionamento no planejamento.
         BloqueioPosicionamentoArea[] bloqueios = FindObjectsByType<BloqueioPosicionamentoArea>(FindObjectsSortMode.None);
         for (int i = 0; i < bloqueios.Length; i++)
         {

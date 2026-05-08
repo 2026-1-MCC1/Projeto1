@@ -23,6 +23,7 @@ public class CameraEditorLivre : MonoBehaviour
 
     private void Start()
     {
+        // Converte rotação inicial da câmera para yaw/pitch separados.
         Vector3 angulos = transform.eulerAngles;
         yaw = angulos.y;
         pitch = angulos.x > 180f ? angulos.x - 360f : angulos.x;
@@ -61,6 +62,7 @@ public class CameraEditorLivre : MonoBehaviour
 
         transform.position += movimento;
 
+        // Segurança: mantém a câmera entre altura mínima e máxima.
         Vector3 pos = transform.position;
         pos.y = Mathf.Clamp(pos.y, alturaMinima, alturaMaxima);
         transform.position = pos;
@@ -68,6 +70,7 @@ public class CameraEditorLivre : MonoBehaviour
 
     private void AtualizarRotacao()
     {
+        // Se estiver ligado, só gira câmera com botão direito pressionado.
         bool podeOlhar = !olharComBotaoDireito || Input.GetMouseButton(1);
 
         if (olharComBotaoDireito)
@@ -94,6 +97,7 @@ public class CameraEditorLivre : MonoBehaviour
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         if (Mathf.Approximately(scroll, 0f)) return;
 
+        // Aproxima/afasta na direção que a câmera está olhando.
         transform.position += transform.forward * (scroll * velocidadeZoom * Time.deltaTime * 60f);
 
         Vector3 pos = transform.position;

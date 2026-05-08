@@ -3,6 +3,7 @@ using UnityEngine;
 
 public static class PlanejamentoRuntimeData
 {
+    // Estrutura simples que guarda "como o item estava" no planejamento.
     public struct ItemPlanejado
     {
         public GameObject prefab;
@@ -11,6 +12,7 @@ public static class PlanejamentoRuntimeData
         public Vector3 scale;
     }
 
+    // Lista compartilhada em memória entre as cenas.
     private static readonly List<ItemPlanejado> itensPlanejados = new List<ItemPlanejado>();
 
     public static IReadOnlyList<ItemPlanejado> ItensPlanejados => itensPlanejados;
@@ -18,6 +20,7 @@ public static class PlanejamentoRuntimeData
 
     public static void LimparPlano()
     {
+        // Remove todos os itens planejados.
         itensPlanejados.Clear();
     }
 
@@ -25,6 +28,7 @@ public static class PlanejamentoRuntimeData
     {
         if (prefab == null || transformDoItem == null) return;
 
+        // Copia os dados do item solto na cena para reconstruir depois.
         ItemPlanejado item = new ItemPlanejado
         {
             prefab = prefab,

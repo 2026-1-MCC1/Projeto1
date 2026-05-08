@@ -84,6 +84,7 @@ public class PolicialScript : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // Toda física de movimento roda em FixedUpdate para ficar estável.
         if (!ativo || rb == null) return;
         if (EstaDentroDoPontoBloqueio())
         {
@@ -93,6 +94,7 @@ public class PolicialScript : MonoBehaviour
 
         if (movimentoTravadoPorBloqueio)
         {
+            // Mantém totalmente parado se entrou em área de bloqueio.
             velocidadeAtual = 0f;
             rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
             return;
@@ -125,6 +127,7 @@ public class PolicialScript : MonoBehaviour
 
         if (Mathf.Abs(horizontal) > 0.001f)
         {
+            // Quanto mais rápido o carro, mais "forte" a curva.
             float intensidadeCurva = Mathf.Clamp01(Mathf.Abs(velocidadeAtual) / Mathf.Max(1f, velocidadeMovimento));
             float direcaoCurva = velocidadeAtual >= 0f ? 1f : -1f;
             float yaw = horizontal * direcaoCurva * velocidadeRotacao * 100f * intensidadeCurva * Time.fixedDeltaTime;
@@ -141,6 +144,7 @@ public class PolicialScript : MonoBehaviour
 
     public void FugitivoEscapou()
     {
+        // Fim de partida por derrota: para movimento, sirene e tracker.
         ativo = false;
         if (rb != null) rb.linearVelocity = Vector3.zero;
         PararSirene();
@@ -149,6 +153,7 @@ public class PolicialScript : MonoBehaviour
 
     public void FugitivoPego()
     {
+        // Fim de partida por vitória: para movimento, sirene e tracker.
         ativo = false;
         if (rb != null) rb.linearVelocity = Vector3.zero;
         PararSirene();
@@ -176,6 +181,7 @@ public class PolicialScript : MonoBehaviour
 
         if (!PodePenalizar(collision)) return;
 
+        // Colisão válida desconta pontos do jogador.
         GameplayPartidaController partida = GameplayPartidaController.Instancia;
         if (partida != null)
             partida.DescontarPontos(penalidadeColisao);
@@ -211,6 +217,7 @@ public class PolicialScript : MonoBehaviour
         if (outro.GetComponentInParent<BloqueioPosicionamentoArea>() != null) return false;
 
         string nome = outro.name.ToLowerInvariant();
+        // Ignora superfícies de cenário e bloqueios no sistema de penalidade.
         if (nome.Contains("ground") || nome.Contains("road") || nome.Contains("pista") || nome.Contains("lane") || nome.Contains("tile") || nome.Contains("bloqueio")) return false;
 
         ultimoImpactoTempo = Time.time;
@@ -268,6 +275,7 @@ public class PolicialScript : MonoBehaviour
                 bloqueio, bloqueio.transform.position, bloqueio.transform.rotation,
                 out direcao, out distancia);
 
+            // Se sobrepõe ao volume do bloqueio, considera invasão da área proibida.
             if (sobrepoe) return true;
         }
 
@@ -288,6 +296,7 @@ public class PolicialScript : MonoBehaviour
 
     private void AcionarBloqueioMovimento()
     {
+        // Trava movimento uma única vez para evitar processamento repetido.
         if (movimentoTravadoPorBloqueio) return;
 
         movimentoTravadoPorBloqueio = true;
@@ -335,6 +344,7 @@ public class PolicialScript : MonoBehaviour
         float distancia = delta.magnitude;
         if (distancia < distanciaMinimaTracker)
         {
+            // Se o fugitivo está perto, o tracker não é necessário.
             OcultarTracker();
             return;
         }
@@ -352,6 +362,7 @@ public class PolicialScript : MonoBehaviour
 
     private void GarantirComponenteSomBatida()
     {
+        // Adiciona ColisaoSom se faltar, copiando parâmetros de outro objeto da cena.
         ColisaoSom meuSom = GetComponent<ColisaoSom>();
         if (meuSom != null) return;
 
@@ -453,6 +464,7 @@ public class PolicialScript : MonoBehaviour
 
     private void SincronizarOutrasFontesSirene(float volumeAtual)
     {
+        // Mantém outras fontes "de sirene" com o mesmo volume do principal.
         AudioSource[] fontes = GetComponentsInChildren<AudioSource>(true);
         for (int i = 0; i < fontes.Length; i++)
         {
@@ -491,6 +503,7 @@ public class PolicialScript : MonoBehaviour
 
     private float CalcularAlturaNoChao(Vector3 pontoNoMundo)
     {
+        // Raycast para colocar tracker exatamente sobre o chão.
         Vector3 origemRay = pontoNoMundo + Vector3.up * 50f;
         if (Physics.Raycast(origemRay, Vector3.down, out RaycastHit hit, 200f, ~0, QueryTriggerInteraction.Ignore))
             return hit.point.y;

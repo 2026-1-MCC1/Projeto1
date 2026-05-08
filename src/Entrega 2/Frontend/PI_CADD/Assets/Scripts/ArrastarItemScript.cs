@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 
 public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    // Prefab real que será criado quando o jogador arrastar este ícone.
     public GameObject prefabDoItem;
 
     [Header("Escala")]
@@ -36,6 +37,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
 
     void Start()
     {
+        // Começa com o estoque cheio e guarda a câmera principal para raycast.
         quantidadeAtual = quantidadeMaxima;
         cameraPrincipal = Camera.main;
     }
@@ -49,6 +51,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
     // Instancia o item e desativa fisica/colisor enquanto esta em arraste.
     public void OnBeginDrag(PointerEventData eventData)
     {
+        // Não cria item se acabou estoque ou se o prefab não foi configurado.
         if (quantidadeAtual <= 0 || prefabDoItem == null) return;
 
         if (cameraPrincipal == null)
@@ -64,6 +67,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
         tevePosicionamentoValido = false;
         posicionamentoAtualValido = false;
 
+        // Cria uma cópia temporária enquanto o mouse está arrastando.
         objetoArrastando = Instantiate(prefabDoItem);
         objetoArrastando.transform.localScale = escalaPadrao;
         objetoArrastando.transform.rotation = Quaternion.Euler(rotacaoInicial);
@@ -97,6 +101,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
 
         if (Physics.Raycast(ray, out hit))
         {
+            // Impede posicionar em áreas proibidas.
             if (ColliderEstaBloqueadoParaPosicionamento(hit.collider))
                 return;
 
@@ -119,6 +124,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
 
         arrastando = false;
 
+        // Se o arraste terminou em posição inválida, cancela o item.
         if (!tevePosicionamentoValido || !posicionamentoAtualValido)
         {
             Destroy(objetoArrastando);
@@ -147,6 +153,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
         quantidadeAtual = Mathf.Max(0, quantidadeAtual - 1);
         AtualizarUI();
 
+        // Salva no "plano" para reconstruir na cena de perseguição.
         if (registrarNoPlanejamento)
             PlanejamentoRuntimeData.RegistrarItem(prefabDoItem, objetoArrastando.transform);
 
@@ -155,6 +162,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
 
     private void AtualizarUI()
     {
+        // Deixa o ícone "apagado" quando não há mais unidades.
         UnityEngine.UI.Image imagem = GetComponent<UnityEngine.UI.Image>();
         if (imagem != null)
             imagem.color = quantidadeAtual <= 0
@@ -174,6 +182,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
         if (Mathf.Abs(direcaoRotacao) < 0.001f) return;
 
         float delta = direcaoRotacao * velocidadeRotacaoArraste * Time.deltaTime;
+        // Gira no eixo Y mundial para manter controle previsível ao usuário.
         objetoArrastando.transform.Rotate(0f, delta, 0f, Space.World);
     }
 

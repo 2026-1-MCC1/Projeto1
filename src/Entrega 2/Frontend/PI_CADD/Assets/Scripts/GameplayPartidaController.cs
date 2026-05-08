@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class GameplayPartidaController : MonoBehaviour
 {
+    // Singleton da partida para outros scripts atualizarem pontuação e resultado final.
     public static GameplayPartidaController Instancia { get; private set; }
 
     [Header("Pontuacao")]
@@ -31,6 +32,7 @@ public class GameplayPartidaController : MonoBehaviour
 
     private void Awake()
     {
+        // Impede duplicar o controlador caso ele exista mais de uma vez na cena.
         if (Instancia != null && Instancia != this)
         {
             Destroy(gameObject);
@@ -40,6 +42,7 @@ public class GameplayPartidaController : MonoBehaviour
         Instancia = this;
         Time.timeScale = 1f;
 
+        // Procura UI automática caso algo não esteja ligado no inspector.
         EncontrarReferenciasUISeNecessario();
 
         pontosAtuais = Mathf.Max(pontosMinimos, pontosIniciais);
@@ -65,6 +68,7 @@ public class GameplayPartidaController : MonoBehaviour
     {
         if (partidaFinalizada) return;
 
+        // Nunca deixa a pontuação cair abaixo do mínimo configurado.
         pontosAtuais = Mathf.Max(pontosMinimos, pontosAtuais - Mathf.Abs(valor));
         AtualizarTextoPontos();
     }
@@ -73,6 +77,7 @@ public class GameplayPartidaController : MonoBehaviour
     {
         if (partidaFinalizada) return;
         partidaFinalizada = true;
+        // Captura = vitória do policial.
         MostrarTelaFinal("Parabéns Fugitivo Capturado!", $"Você fez {pontosAtuais} pontos", false);
     }
 
@@ -185,6 +190,7 @@ public class GameplayPartidaController : MonoBehaviour
     {
         if (textoContagem == null) yield break;
 
+        // Pausa a simulação e mostra contagem regressiva de início.
         Time.timeScale = 0f;
         if (fundoContagem != null) fundoContagem.gameObject.SetActive(true);
         textoContagem.gameObject.SetActive(true);
