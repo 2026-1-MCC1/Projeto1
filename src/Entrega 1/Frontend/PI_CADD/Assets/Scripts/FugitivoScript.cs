@@ -150,7 +150,27 @@ public class FugitivoScript : MonoBehaviour
             return;
         }
 
+        Rigidbody hitRb = collision.collider.attachedRigidbody;
+        if (hitRb != null && !hitRb.isKinematic)
+        {
+            Vector3 dir = collision.contacts[0].point - transform.position;
+            dir.y = 0; 
+            if (dir.sqrMagnitude > 0.01f) dir.Normalize();
+            else dir = transform.forward;
+            
+            float forca = (fugitivo != null && fugitivo.velocity.magnitude > 1f) ? 15f : 6f;
+            hitRb.AddForce((dir + Vector3.up * 0.4f) * forca, ForceMode.Impulse);
+        }
+
         if (!PodePenalizar(collision)) return;
+        
+        ColisaoSom somBatida = GetComponent<ColisaoSom>();
+        if (somBatida != null)
+        {
+            float velocidadeAtual = fugitivo != null ? fugitivo.velocity.magnitude : 0f;
+            somBatida.TentarTocarPorContato(collision.gameObject, velocidadeAtual);
+        }
+
         AplicarPenalidadeColisao();
     }
 

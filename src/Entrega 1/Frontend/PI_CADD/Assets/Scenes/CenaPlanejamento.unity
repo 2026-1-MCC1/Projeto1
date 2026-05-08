@@ -9530,17 +9530,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca0d2eafc93ad1c4595618bb25de17d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemArrastavel
-  prefabDoItem: {fileID: 919132149155446097, guid: e8f21bc3b83ad408285d6f1a3e939f5e, type: 3}
-  escalaPadrao: {x: 6, y: 1, z: 2.5}
-  rotacaoInicial: {x: 0, y: -6, z: 0}
+  prefabDoItem: {fileID: 6175851496685650480, guid: 163bc45ccdaf14fa285f2a63d10fe937, type: 3}
+  escalaPadrao: {x: 10, y: 10, z: 10}
+  rotacaoInicial: {x: 0, y: 0, z: 0}
   permitirRotacaoDuranteArraste: 1
   velocidadeRotacaoArraste: 140
   teclaRotacionarEsquerda: 113
   teclaRotacionarDireita: 101
   offsetPosicao: {x: 0, y: 0, z: 0}
-  quantidadeMaxima: 3
+  quantidadeMaxima: 2
   registrarNoPlanejamento: 1
-  manterObjetoEstaticoAoSoltar: 0
+  manterObjetoEstaticoAoSoltar: 1
 --- !u!114 &305799359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18582,16 +18582,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemArrastavel
   prefabDoItem: {fileID: 100000, guid: 689e828b3a6144b0984a46e0c3ff276e, type: 3}
-  escalaPadrao: {x: 6, y: 1, z: 2.5}
-  rotacaoInicial: {x: 0, y: -6, z: 0}
+  escalaPadrao: {x: 2, y: 1, z: 2}
+  rotacaoInicial: {x: 0, y: 0, z: 0}
   permitirRotacaoDuranteArraste: 1
   velocidadeRotacaoArraste: 140
   teclaRotacionarEsquerda: 113
   teclaRotacionarDireita: 101
   offsetPosicao: {x: 0, y: 0, z: 0}
-  quantidadeMaxima: 3
+  quantidadeMaxima: 2
   registrarNoPlanejamento: 1
-  manterObjetoEstaticoAoSoltar: 0
+  manterObjetoEstaticoAoSoltar: 1
 --- !u!114 &587407331
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19376,18 +19376,18 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ca0d2eafc93ad1c4595618bb25de17d0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemArrastavel
-  prefabDoItem: {fileID: 919132149155446097, guid: 5394d0b370cb344358c6f5184a26e04c, type: 3}
-  escalaPadrao: {x: 6, y: 1, z: 2.5}
-  rotacaoInicial: {x: 0, y: -6, z: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::ArrastarItemScript
+  prefabDoItem: {fileID: 8790795766154890520, guid: a7a492c09463b45b58d6b89d3699bd9a, type: 3}
+  escalaPadrao: {x: 10, y: 10, z: 10}
+  rotacaoInicial: {x: 0, y: 0, z: 0}
   permitirRotacaoDuranteArraste: 1
   velocidadeRotacaoArraste: 140
   teclaRotacionarEsquerda: 113
   teclaRotacionarDireita: 101
   offsetPosicao: {x: 0, y: 0, z: 0}
-  quantidadeMaxima: 3
+  quantidadeMaxima: 1
   registrarNoPlanejamento: 1
-  manterObjetoEstaticoAoSoltar: 0
+  manterObjetoEstaticoAoSoltar: 1
 --- !u!114 &625156271
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67395,7 +67395,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d228862b4065b134b804d94bd7737e6f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9dccc9bd9390b48cdbc61d8d61d0aa21, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -72802,14 +72802,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemArrastavel
   prefabDoItem: {fileID: 100000, guid: 594a5e3303ead42878eb560b83ac6793, type: 3}
-  escalaPadrao: {x: 6, y: 1, z: 2.5}
-  rotacaoInicial: {x: 0, y: -6, z: 0}
+  escalaPadrao: {x: 2, y: 2, z: 2}
+  rotacaoInicial: {x: 0, y: 0, z: 0}
   permitirRotacaoDuranteArraste: 1
   velocidadeRotacaoArraste: 140
   teclaRotacionarEsquerda: 113
   teclaRotacionarDireita: 101
   offsetPosicao: {x: 0, y: 0, z: 0}
-  quantidadeMaxima: 3
+  quantidadeMaxima: 2
   registrarNoPlanejamento: 1
   manterObjetoEstaticoAoSoltar: 0
 --- !u!114 &2113054749
@@ -74333,7 +74333,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 2, y: 108}
-  m_SizeDelta: {x: 45, y: 45}
+  m_SizeDelta: {x: 45, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2147407779
 MonoBehaviour:
@@ -74355,9 +74355,9 @@ MonoBehaviour:
   teclaRotacionarEsquerda: 113
   teclaRotacionarDireita: 101
   offsetPosicao: {x: 0, y: 1, z: 0}
-  quantidadeMaxima: 3
+  quantidadeMaxima: 2
   registrarNoPlanejamento: 1
-  manterObjetoEstaticoAoSoltar: 0
+  manterObjetoEstaticoAoSoltar: 1
 --- !u!114 &2147407780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74378,7 +74378,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 58f3ae381bf33fe409455de4b84b558b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8df3d7c1110cb4e69b1d2a3b80c74814, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

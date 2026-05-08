@@ -29,26 +29,8 @@ public class AplicarPlanejamentoNaPerseguicao : MonoBehaviour
                 GameObject instancia = Instantiate(item.prefab, item.position, item.rotation, parentDosItens);
                 instancia.transform.localScale = item.scale;
 
-                Rigidbody rb = instancia.GetComponent<Rigidbody>();
-                if (rb != null)
-                {
-                    rb.linearVelocity = Vector3.zero;
-                    rb.angularVelocity = Vector3.zero;
-                    rb.isKinematic = true;
-                    rb.useGravity = false;
-                }
-
-                Collider col = instancia.GetComponent<Collider>();
-                if (col != null) col.enabled = true;
-
-                if (!adicionarNavMeshObstacle) continue;
-
-                NavMeshObstacle obstacle = instancia.GetComponent<NavMeshObstacle>();
-                if (obstacle == null)
-                    obstacle = instancia.AddComponent<NavMeshObstacle>();
-
-                obstacle.carving = obstacleCarve;
-                obstacle.carveOnlyStationary = true;
+                // O prefab já instanciou com seus componentes (Rigidbody, Colliders, NavMeshObstacle)
+                // preservando exatamente as configurações feitas pela interface da Unity.
             }
         }
 

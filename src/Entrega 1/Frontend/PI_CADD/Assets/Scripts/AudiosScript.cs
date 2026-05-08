@@ -54,19 +54,29 @@ public class AudiosScript : MonoBehaviour
 
     private void QuandoTrocarCena(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name != "Menu" && musicaSource != null && musicaSource.isPlaying)
+        if (scene.name != "Menu" && scene.name != "CenaPlanejamento" && musicaSource != null && musicaSource.isPlaying)
         {
             musicaSource.Stop();
+        }
+        else if ((scene.name == "Menu" || scene.name == "CenaPlanejamento") && musicaSource != null && !musicaSource.isPlaying && musicaSource.clip != null)
+        {
+            musicaSource.Play();
         }
 
         if (scene.name == "Menu")
             ConfigurarSlidersMenuNaCenaAtual();
+
+        AplicarVolume();
     }
 
     private void AplicarVolume()
     {
         if (musicaSource != null)
-            musicaSource.volume = volumeMusica;
+        {
+            string nomeCena = SceneManager.GetActiveScene().name;
+            float multiplicadorMusica = (nomeCena == "CenaPlanejamento") ? 0.3f : 1f;
+            musicaSource.volume = volumeMusica * multiplicadorMusica;
+        }
 
         if (efeitosSource != null)
             efeitosSource.volume = volumeEfeitos;

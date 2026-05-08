@@ -77,9 +77,13 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
             rb.angularVelocity = Vector3.zero;
         }
 
-        Collider col = objetoArrastando.GetComponent<Collider>();
-        if (col != null)
-            col.enabled = false;
+        Collider[] cols = objetoArrastando.GetComponentsInChildren<Collider>();
+        foreach (Collider c in cols)
+            c.enabled = false;
+
+        UnityEngine.AI.NavMeshObstacle[] navs = objetoArrastando.GetComponentsInChildren<UnityEngine.AI.NavMeshObstacle>();
+        foreach (var nav in navs)
+            nav.enabled = false;
     }
 
     // Move o item para o ponto valido de raycast.
@@ -98,7 +102,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
 
             Vector3 pos = hit.point + offsetPosicao;
 
-            Collider col = objetoArrastando.GetComponent<Collider>();
+            Collider col = objetoArrastando.GetComponentInChildren<Collider>();
             float alturaCollider = col != null ? col.bounds.extents.y : 0.5f;
             pos.y = hit.point.y + alturaCollider + offsetPosicao.y;
 
@@ -122,25 +126,23 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
             return;
         }
 
-        bool manterEstatico = manterObjetoEstaticoAoSoltar || registrarNoPlanejamento;
+        bool manterEstatico = manterObjetoEstaticoAoSoltar;
 
         Rigidbody rb = objetoArrastando.GetComponent<Rigidbody>();
         if (rb != null)
         {
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
-            rb.isKinematic = manterEstatico ? true : false;
-            rb.useGravity = manterEstatico ? false : true;
+            rb.isKinematic = manterEstatico;
+            rb.useGravity = !manterEstatico;
         }
 
-        Collider col = objetoArrastando.GetComponent<Collider>();
-        if (col != null)
-        {
-            if (manterEstatico)
-                col.enabled = true;
-            else
-                StartCoroutine(ReativarCollider(col));
-        }
+        Collider[] cols = objetoArrastando.GetComponentsInChildren<Collider>();
+        foreach (var c in cols) c.enabled = true;
+
+        UnityEngine.AI.NavMeshObstacle[] navs = objetoArrastando.GetComponentsInChildren<UnityEngine.AI.NavMeshObstacle>();
+        foreach (var nav in navs)
+            nav.enabled = true;
 
         quantidadeAtual = Mathf.Max(0, quantidadeAtual - 1);
         AtualizarUI();
@@ -149,13 +151,6 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
             PlanejamentoRuntimeData.RegistrarItem(prefabDoItem, objetoArrastando.transform);
 
         objetoArrastando = null;
-    }
-
-    private System.Collections.IEnumerator ReativarCollider(Collider col)
-    {
-        yield return new WaitForSeconds(0.5f);
-        if (col != null)
-            col.enabled = true;
     }
 
     private void AtualizarUI()

@@ -85,7 +85,7 @@ public class GameplayPartidaController : MonoBehaviour
         pontosAtuais = 0;
         AtualizarTextoPontos();
 
-        MostrarTelaFinal("A Missão Falhou!", $"Voce fez {pontosAtuais} pontos", true);
+        MostrarTelaFinal("A Missão Falhou!", $"Fugitivo Escapou!\n\nVoce fez {pontosAtuais} pontos", true);
     }
 
     private void AtualizarTextoPontos()
