@@ -23,7 +23,7 @@ Game by <a href="https://www.linkedin.com/in/andre-makoto-molitorlitor-9aa6b7358
 
 ## 📖 Descrição
 
-Este projeto consiste em um jogo de perseguição entre polícia e ladrão ambientado em um cenário urbano dinâmico. O jogador assume o papel do policial, tendo como objetivo escapar ou capturar, respectivamente, utilizando habilidades de direção e estratégia.
+Este projeto consiste em um jogo de perseguição entre polícia e ladrão ambientado em um cenário urbano dinâmico. O jogador assume o papel do policial, tendo como objetivo capturar o fugito utilizando habilidades de direção e adicionando obstáculos de forma estratégia.
 
 O diferencial do jogo está na proposta de conscientização: durante as perseguições, o jogador deve lidar com elementos do ambiente que representam o patrimônio público, como postes, bancos, hidrantes e estruturas urbanas. A destruição desses elementos impacta negativamente a pontuação, incentivando uma condução mais responsável e destacando os prejuízos causados por perseguições na vida real.
 
@@ -40,7 +40,7 @@ Criar um jogo interativo que una entretenimento e conscientização, demonstrand
 - Sistema de perseguição (polícia vs ladrão)
 - Obstáculos urbanos interativos
 - Sistema de pontuação baseado em destruição
-- IA básica para viaturas policiais
+- IA básica para o Fugitivo
 - Penalizações por danos ao ambiente
 
 ---
@@ -72,7 +72,7 @@ Projeto1/
 │       ├── Logica e Algoritimos/
 │       ├── Projeto Interdisciplinar/
 │       └── Ética/
-├── executavel/                    # PDF com link do itch.io
+├── executavel/
 └── src/
     ├── Entrega 1/
     │   └── Frontend/PI_CADD/
