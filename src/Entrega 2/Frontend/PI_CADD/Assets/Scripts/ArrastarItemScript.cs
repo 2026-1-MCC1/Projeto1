@@ -1,5 +1,8 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using TMPro;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -34,6 +37,16 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
     private bool tevePosicionamentoValido = false;
     private bool posicionamentoAtualValido = false;
     private Camera cameraPrincipal;
+    private bool exibindoAvisoPosicionamentoInvalido = false;
+
+    private const string NomeObjetoAvisoPosicionamento = "AvisoPosicionamentoInvalido";
+    private const string MensagemAvisoPosicionamento = "<mark=#1B2230CC><b>Não é possível colocar neste local</b></mark>";
+    private static RectTransform avisoRect;
+    private static TextMeshProUGUI avisoTexto;
+    private static RectTransform canvasRectAviso;
+    private static Camera cameraCanvasAviso;
+    private static float tempoOcultarAviso = -1f;
+    private static readonly Vector2 offsetAvisoCursor = new Vector2(18f, 20f);
 
     void Start()
     {
@@ -46,6 +59,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
     {
         if (!arrastando || objetoArrastando == null) return;
         AtualizarRotacaoDuranteArraste();
+        AtualizarEstadoAvisoPosicionamento();
     }
 
     // Instancia o item e desativa fisica/colisor enquanto esta em arraste.
@@ -66,6 +80,8 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
         arrastando = true;
         tevePosicionamentoValido = false;
         posicionamentoAtualValido = false;
+        exibindoAvisoPosicionamentoInvalido = false;
+        OcultarAvisoPosicionamento();
 
         // Cria uma cópia temporária enquanto o mouse está arrastando.
         objetoArrastando = Instantiate(prefabDoItem);
@@ -103,7 +119,12 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
         {
             // Impede posicionar em áreas proibidas.
             if (ColliderEstaBloqueadoParaPosicionamento(hit.collider))
+            {
+                posicionamentoAtualValido = false;
+                MostrarAvisoPosicionamento(eventData.position);
+                exibindoAvisoPosicionamentoInvalido = true;
                 return;
+            }
 
             Vector3 pos = hit.point + offsetPosicao;
 
@@ -114,6 +135,13 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
             objetoArrastando.transform.position = pos;
             tevePosicionamentoValido = true;
             posicionamentoAtualValido = true;
+            exibindoAvisoPosicionamentoInvalido = false;
+            OcultarAvisoPosicionamento();
+        }
+        else
+        {
+            exibindoAvisoPosicionamentoInvalido = false;
+            OcultarAvisoPosicionamento();
         }
     }
 
@@ -127,6 +155,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
         // Se o arraste terminou em posição inválida, cancela o item.
         if (!tevePosicionamentoValido || !posicionamentoAtualValido)
         {
+            OcultarAvisoPosicionamento();
             Destroy(objetoArrastando);
             objetoArrastando = null;
             return;
@@ -157,6 +186,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
         if (registrarNoPlanejamento)
             PlanejamentoRuntimeData.RegistrarItem(prefabDoItem, objetoArrastando.transform);
 
+        OcultarAvisoPosicionamento();
         objetoArrastando = null;
     }
 
@@ -190,5 +220,94 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
     {
         if (colliderAlvo == null) return false;
         return colliderAlvo.GetComponentInParent<BloqueioPosicionamentoArea>() != null;
+    }
+
+    private void AtualizarEstadoAvisoPosicionamento()
+    {
+        if (exibindoAvisoPosicionamentoInvalido)
+            MostrarAvisoPosicionamento(Input.mousePosition);
+    }
+
+    private static void MostrarAvisoPosicionamento(Vector2 posicaoCursorTela)
+    {
+        if (!GarantirReferenciaAviso()) return;
+
+        avisoTexto.text = MensagemAvisoPosicionamento;
+        if (!avisoTexto.gameObject.activeSelf)
+            avisoTexto.gameObject.SetActive(true);
+
+        PosicionarAviso(posicaoCursorTela + offsetAvisoCursor);
+        tempoOcultarAviso = Time.unscaledTime + 0.08f;
+    }
+
+    private static void OcultarAvisoPosicionamento()
+    {
+        if (avisoTexto == null) return;
+        avisoTexto.gameObject.SetActive(false);
+        tempoOcultarAviso = -1f;
+    }
+
+    private static void AtualizarOcultacaoAvisoPorTempo()
+    {
+        if (tempoOcultarAviso < 0f || avisoTexto == null) return;
+        if (Time.unscaledTime < tempoOcultarAviso) return;
+
+        avisoTexto.gameObject.SetActive(false);
+        tempoOcultarAviso = -1f;
+    }
+
+    private static bool GarantirReferenciaAviso()
+    {
+        if (avisoTexto != null && avisoRect != null && canvasRectAviso != null)
+            return true;
+
+        GameObject obj = GameObject.Find(NomeObjetoAvisoPosicionamento);
+        if (obj == null)
+            obj = EncontrarObjetoNaCenaInclusiveInativos(NomeObjetoAvisoPosicionamento);
+        if (obj == null) return false;
+
+        avisoTexto = obj.GetComponent<TextMeshProUGUI>();
+        avisoRect = obj.GetComponent<RectTransform>();
+        Canvas canvas = obj.GetComponentInParent<Canvas>();
+        canvasRectAviso = canvas != null ? canvas.GetComponent<RectTransform>() : null;
+        cameraCanvasAviso = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+
+        return avisoTexto != null && avisoRect != null && canvasRectAviso != null;
+    }
+
+    private static GameObject EncontrarObjetoNaCenaInclusiveInativos(string nome)
+    {
+        Scene cena = SceneManager.GetActiveScene();
+        if (!cena.IsValid()) return null;
+
+        GameObject[] raizes = cena.GetRootGameObjects();
+        Stack<Transform> pilha = new Stack<Transform>();
+        for (int i = 0; i < raizes.Length; i++)
+            pilha.Push(raizes[i].transform);
+
+        while (pilha.Count > 0)
+        {
+            Transform atual = pilha.Pop();
+            if (atual.name == nome)
+                return atual.gameObject;
+
+            for (int i = 0; i < atual.childCount; i++)
+                pilha.Push(atual.GetChild(i));
+        }
+
+        return null;
+    }
+
+    private static void PosicionarAviso(Vector2 posicaoTela)
+    {
+        if (avisoRect == null || canvasRectAviso == null) return;
+
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectAviso, posicaoTela, cameraCanvasAviso, out Vector2 local))
+            avisoRect.anchoredPosition = local;
+    }
+
+    private void LateUpdate()
+    {
+        AtualizarOcultacaoAvisoPorTempo();
     }
 }

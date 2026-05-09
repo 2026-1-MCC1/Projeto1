@@ -29,6 +29,14 @@ public class PolicialScript : MonoBehaviour
     public AudioClip sirene;
     [Range(0f, 1f)] public float volumeSirene = 0.22f;
 
+    [Header("Limites de Mapa")]
+    public bool limitarMovimentoAoAsfalto = true;
+    public LayerMask camadasDeChaoPermitidas = 1 << 3;
+    public float alturaRaycastChao = 2f;
+    public float distanciaRaycastChao = 8f;
+    public float antecipacaoLimite = 1.3f;
+    public float recuoAoEncostarNoLimite = 0.25f;
+
     private Rigidbody rb;
     private AudioSource sourceSirene;
     private Transform setaTrackerInstancia;
@@ -40,6 +48,8 @@ public class PolicialScript : MonoBehaviour
     private float ultimoImpactoTempo = -999f;
     private float velocidadeAtual = 0f;
     private float volumeSireneAplicado = -1f;
+    private Vector3 ultimaPosicaoValidaNoMapa;
+    private bool temUltimaPosicaoValidaNoMapa = false;
 
     private void Start()
     {
@@ -77,6 +87,7 @@ public class PolicialScript : MonoBehaviour
 
         ConfigurarETocarSirene();
         AtualizarReferenciaPontoBloqueio(true);
+        RegistrarPosicaoValidaNoMapa();
 
         // O tracker depende do fugitivo e da seta de indicador ja existentes na cena.
         InicializarTrackerSeNecessario();
@@ -100,6 +111,9 @@ public class PolicialScript : MonoBehaviour
             return;
         }
 
+        if (limitarMovimentoAoAsfalto)
+            AplicarCorrecaoSeSaiuDoMapa();
+
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
@@ -115,6 +129,9 @@ public class PolicialScript : MonoBehaviour
         else if (vertical < 0f)
             velocidadeAlvo = vertical * velocidadeRe;
 
+        if (limitarMovimentoAoAsfalto && Mathf.Abs(velocidadeAlvo) > 0.001f && !MovimentoProjetadoPermitido(velocidadeAlvo))
+            velocidadeAlvo = 0f;
+
         float taxaVelocidade = Mathf.Abs(vertical) > 0.001f
             ? aceleracaoMovimento
             : desaceleracaoSemInput;
@@ -124,6 +141,9 @@ public class PolicialScript : MonoBehaviour
         // Movimento no plano horizontal; eixo Y continua sob responsabilidade da fisica.
         Vector3 novaVelocidadePlano = transform.forward * velocidadeAtual;
         rb.linearVelocity = new Vector3(novaVelocidadePlano.x, rb.linearVelocity.y, novaVelocidadePlano.z);
+
+        if (limitarMovimentoAoAsfalto)
+            RegistrarPosicaoValidaNoMapa();
 
         if (Mathf.Abs(horizontal) > 0.001f)
         {
@@ -302,6 +322,72 @@ public class PolicialScript : MonoBehaviour
         movimentoTravadoPorBloqueio = true;
         velocidadeAtual = 0f;
         if (rb != null) rb.linearVelocity = Vector3.zero;
+    }
+
+    private void AplicarCorrecaoSeSaiuDoMapa()
+    {
+        if (rb == null) return;
+        if (PontoPertenceAoMapaDirigivel(rb.position, out _)) return;
+        if (!temUltimaPosicaoValidaNoMapa) return;
+
+        Vector3 direcaoSaida = (rb.position - ultimaPosicaoValidaNoMapa);
+        direcaoSaida.y = 0f;
+        if (direcaoSaida.sqrMagnitude < 0.0001f)
+            direcaoSaida = transform.forward;
+        direcaoSaida.Normalize();
+
+        Vector3 destino = ultimaPosicaoValidaNoMapa - direcaoSaida * Mathf.Max(0f, recuoAoEncostarNoLimite);
+        destino.y = rb.position.y;
+
+        rb.position = destino;
+        velocidadeAtual = 0f;
+        rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+    }
+
+    private bool MovimentoProjetadoPermitido(float velocidadeDesejada)
+    {
+        Vector3 direcao = transform.forward * Mathf.Sign(velocidadeDesejada);
+        float distancia = Mathf.Max(0.65f, Mathf.Abs(velocidadeDesejada) * Time.fixedDeltaTime * Mathf.Max(1f, antecipacaoLimite));
+        Vector3 pontoProjetado = rb.position + direcao * distancia;
+        return PontoPertenceAoMapaDirigivel(pontoProjetado, out _);
+    }
+
+    private void RegistrarPosicaoValidaNoMapa()
+    {
+        if (!limitarMovimentoAoAsfalto) return;
+        if (!PontoPertenceAoMapaDirigivel(rb.position, out Vector3 ponto)) return;
+
+        ultimaPosicaoValidaNoMapa = ponto;
+        temUltimaPosicaoValidaNoMapa = true;
+    }
+
+    private bool PontoPertenceAoMapaDirigivel(Vector3 ponto, out Vector3 pontoNoChao)
+    {
+        pontoNoChao = ponto;
+
+        Vector3 origem = ponto + Vector3.up * Mathf.Max(0.5f, alturaRaycastChao);
+        float distancia = Mathf.Max(2f, distanciaRaycastChao);
+        if (!Physics.Raycast(origem, Vector3.down, out RaycastHit hit, distancia, ~0, QueryTriggerInteraction.Ignore))
+            return false;
+
+        pontoNoChao = hit.point;
+        if (hit.collider == null) return false;
+
+        if (hit.collider.GetComponentInParent<BloqueioPosicionamentoArea>() != null)
+            return false;
+
+        int mask = camadasDeChaoPermitidas.value;
+        if (mask != 0 && (mask & (1 << hit.collider.gameObject.layer)) != 0)
+            return true;
+
+        string nome = hit.collider.name.ToLowerInvariant();
+        if (nome.Contains("ground") || nome.Contains("grass") || nome.Contains("grama") || nome.Contains("terrain"))
+            return false;
+
+        if (nome.Contains("road") || nome.Contains("rua") || nome.Contains("pista") || nome.Contains("lane") || nome.Contains("asphalt") || nome.Contains("concrete"))
+            return true;
+
+        return false;
     }
 
     private void InicializarTrackerSeNecessario()
