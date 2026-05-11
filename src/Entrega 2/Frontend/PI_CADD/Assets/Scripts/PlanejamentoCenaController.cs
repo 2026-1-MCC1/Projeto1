@@ -394,7 +394,7 @@ public class PlanejamentoCenaController : MonoBehaviour
         {
             sliderMusicaPausa = EncontrarSliderFilho(painelPausa.transform, "SliderEfeitosPausa");
             if (sliderMusicaPausa != null)
-                Debug.LogWarning("PlanejamentoCenaController: usando slider unico como controle de musica.");
+                Debug.Log("PlanejamentoCenaController: usando slider unico como controle de musica.");
         }
 
         botaoContinuarPausa = EncontrarBotaoFilho(painelPausa.transform, "BotaoContinuarPausa");

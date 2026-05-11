@@ -344,16 +344,13 @@ public class GameplayPartidaController : MonoBehaviour
 
     private void AtualizarSlidersPausaComVolumeAtual()
     {
-        if (AudiosScript.instancia == null) return;
-
         if (sliderEfeitosPausa != null)
-            sliderEfeitosPausa.SetValueWithoutNotify(Mathf.Clamp01(AudiosScript.instancia.volumeEfeitos));
+            sliderEfeitosPausa.SetValueWithoutNotify(AudiosScript.ObterVolumeEfeitosGlobal());
     }
 
     private void AoMudarSliderEfeitosPausa(float valor)
     {
-        if (AudiosScript.instancia != null)
-            AudiosScript.instancia.MudarVolumeEfeitos(valor);
+        AudiosScript.DefinirVolumeEfeitosGlobal(valor);
     }
 
 

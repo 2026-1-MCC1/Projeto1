@@ -61341,6 +61341,14 @@ MonoBehaviour:
   offsetAlturaTracker: 1.2
   sirene: {fileID: 8300000, guid: 31296780747724c81aa5d0f304423992, type: 3}
   volumeSirene: 0.02
+  limitarMovimentoAoAsfalto: 1
+  camadasDeChaoPermitidas:
+    serializedVersion: 2
+    m_Bits: 8
+  alturaRaycastChao: 2
+  distanciaRaycastChao: 8
+  antecipacaoLimite: 1.3
+  recuoAoEncostarNoLimite: 0.25
 --- !u!54 &1572264179
 Rigidbody:
   m_ObjectHideFlags: 0
