@@ -18,6 +18,7 @@ public class ColisaoSom : MonoBehaviour
 
     private void Awake()
     {
+        // Guarda um clip de referência para objetos que não receberam clip no inspector.
         if (somBatida != null && clipGlobalCache == null)
             clipGlobalCache = somBatida;
     }
@@ -31,6 +32,7 @@ public class ColisaoSom : MonoBehaviour
 
     public void TentarTocarPorContato(GameObject outro, float velocidade)
     {
+        // Método público para outros scripts pedirem som de batida.
         if (!PodeTocar(outro, velocidade)) return;
         TocarSom();
     }
@@ -38,6 +40,7 @@ public class ColisaoSom : MonoBehaviour
     private bool PodeTocar(GameObject outro, float velocidade)
     {
         if (outro == null) return false;
+        // Cooldown global para não tocar dezenas de sons no mesmo instante.
         if (Time.time - ultimoSomTempo < cooldownSom) return false;
         if (velocidade < velocidadeMinimaImpacto) return false;
         if (outro.transform == transform || outro.transform.IsChildOf(transform) || transform.IsChildOf(outro.transform)) return false;
@@ -48,6 +51,7 @@ public class ColisaoSom : MonoBehaviour
         int idAlvo = outro.GetInstanceID();
         if (ultimoSomPorAlvo.TryGetValue(idAlvo, out float ultimoPorAlvo))
         {
+            // Cooldown por alvo para evitar spam com o mesmo objeto.
             if (Time.time - ultimoPorAlvo < cooldownMesmoAlvo) return false;
         }
 
@@ -65,6 +69,7 @@ public class ColisaoSom : MonoBehaviour
 
     private bool EhSuperficieIgnorada(string nome)
     {
+        // Filtro por nome para não tocar batida em superfícies grandes de cenário.
         if (string.IsNullOrEmpty(nome)) return false;
         if (nome.Contains("ground")) return true;
         if (nome.Contains("road")) return true;
@@ -115,7 +120,7 @@ public class ColisaoSom : MonoBehaviour
         AudioSource source = emissor.AddComponent<AudioSource>();
         source.spatialBlend = 0f; // 2D, evita sumir por distancia
         source.playOnAwake = false;
-        source.volume = 0.35f * volume;
+        source.volume = 0.35f * volume * AudiosScript.ObterVolumeEfeitosGlobal();
         source.clip = clip;
         source.Play();
         Destroy(emissor, clip.length + 0.1f);

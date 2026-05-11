@@ -3,6 +3,7 @@ using UnityEngine.AI;
 
 public class FugitivoScript : MonoBehaviour
 {
+    // Valor base de penalidade aplicado quando o fugitivo bate em objetos relevantes.
     private const int PenalidadeColisaoFugitivo = 3;
 
     [Header("Navegacao")]
@@ -31,6 +32,7 @@ public class FugitivoScript : MonoBehaviour
 
     private void Start()
     {
+        // Mantém penalidade padronizada independentemente do valor editado por acidente.
         penalidadeColisao = PenalidadeColisaoFugitivo;
 
         fugitivo = GetComponent<NavMeshAgent>();
@@ -72,6 +74,7 @@ public class FugitivoScript : MonoBehaviour
         CriarDetectorCenarioSeNecessario();
 
         fugitivo.isStopped = false;
+        // Define destino de fuga logo no início da cena.
         fugitivo.SetDestination(pontoFuga.position);
     }
 
@@ -88,6 +91,7 @@ public class FugitivoScript : MonoBehaviour
     {
         if (policial == null) return;
 
+        // Se o policial estiver perto o suficiente, considera captura.
         float distancia = Vector3.Distance(transform.position, policial.position);
         if (distancia <= distanciaParaSerPego)
             CapturarFugitivo();
@@ -110,6 +114,7 @@ public class FugitivoScript : MonoBehaviour
 
         if (policial != null)
         {
+            // Notifica o script do policial para encerrar a partida como vitória.
             PolicialScript ps = policial.GetComponent<PolicialScript>();
             if (ps != null) ps.FugitivoPego();
         }
@@ -134,16 +139,29 @@ public class FugitivoScript : MonoBehaviour
 
             GameplayPartidaController partida = GameplayPartidaController.Instancia;
             if (partida != null)
+                // Notifica derrota do policial.
                 partida.RegistrarFuga();
         }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
+        ProcessarColisao(collision);
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        ProcessarColisao(collision);
+    }
+
+    private void ProcessarColisao(Collision collision)
+    {
         if (foiPego || escapou) return;
         if (collision == null) return;
 
-        PolicialScript policialScript = collision.gameObject.GetComponent<PolicialScript>();
+        PolicialScript policialScript = collision.collider != null
+            ? collision.collider.GetComponentInParent<PolicialScript>()
+            : null;
         if (policialScript != null)
         {
             CapturarFugitivo();
@@ -153,17 +171,18 @@ public class FugitivoScript : MonoBehaviour
         Rigidbody hitRb = collision.collider.attachedRigidbody;
         if (hitRb != null && !hitRb.isKinematic)
         {
+            // Dá um empurrão visual no objeto batido para reforçar feedback de colisão.
             Vector3 dir = collision.contacts[0].point - transform.position;
-            dir.y = 0; 
+            dir.y = 0;
             if (dir.sqrMagnitude > 0.01f) dir.Normalize();
             else dir = transform.forward;
-            
+
             float forca = (fugitivo != null && fugitivo.velocity.magnitude > 1f) ? 15f : 6f;
             hitRb.AddForce((dir + Vector3.up * 0.4f) * forca, ForceMode.Impulse);
         }
 
         if (!PodePenalizar(collision)) return;
-        
+
         ColisaoSom somBatida = GetComponent<ColisaoSom>();
         if (somBatida != null)
         {
@@ -176,10 +195,20 @@ public class FugitivoScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        ProcessarTrigger(other);
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        ProcessarTrigger(other);
+    }
+
+    private void ProcessarTrigger(Collider other)
+    {
         if (foiPego || escapou) return;
         if (other == null) return;
 
-        if (other.GetComponent<PolicialScript>() != null)
+        if (other.GetComponentInParent<PolicialScript>() != null)
         {
             CapturarFugitivo();
             return;
@@ -208,15 +237,17 @@ public class FugitivoScript : MonoBehaviour
 
     private bool PodePenalizar(GameObject outro, float velocidadeImpacto)
     {
+        // Filtro de tempo e velocidade para evitar punição exagerada por contatos fracos.
         if (Time.time - ultimoImpactoTempo < cooldownPenalidade) return false;
         if (velocidadeImpacto < velocidadeMinimaImpacto) return false;
         if (outro == null) return false;
 
-        if (outro.GetComponent<PolicialScript>() != null) return false;
-        if (outro.GetComponent<FugitivoScript>() != null) return false;
+        if (outro.GetComponentInParent<PolicialScript>() != null) return false;
+        if (outro.GetComponentInParent<FugitivoScript>() != null) return false;
         if (outro.GetComponentInParent<BloqueioPosicionamentoArea>() != null) return false;
 
         string nome = outro.name.ToLowerInvariant();
+        // Ignora chão/rua/bloqueios no desconto de pontos.
         if (nome.Contains("ground") || nome.Contains("road") || nome.Contains("pista") || nome.Contains("lane") || nome.Contains("tile") || nome.Contains("bloqueio")) return false;
 
         ultimoImpactoTempo = Time.time;
@@ -226,12 +257,15 @@ public class FugitivoScript : MonoBehaviour
     private void AplicarPenalidadeColisao()
     {
         GameplayPartidaController partida = GameplayPartidaController.Instancia;
+        if (partida == null)
+            partida = FindFirstObjectByType<GameplayPartidaController>();
         if (partida != null)
             partida.DescontarPontos(penalidadeColisao);
     }
 
     private void CriarDetectorCenarioSeNecessario()
     {
+        // Detector trigger auxiliar para contatos suaves com cenário.
         Transform existente = transform.Find("DetectorColisaoCenario");
         if (existente != null)
         {
@@ -253,6 +287,7 @@ public class FugitivoScript : MonoBehaviour
 
     private System.Collections.IEnumerator RodarFugitivo()
     {
+        // Animação simples de giro para mostrar que foi capturado.
         float tempo = 0f;
         float duracaoRotacao = 3f;
 
@@ -268,6 +303,7 @@ public class FugitivoScript : MonoBehaviour
 
     private void GarantirComponenteSomBatida()
     {
+        // Se o fugitivo não tiver ColisaoSom, cria e tenta copiar config de outro objeto.
         ColisaoSom meuSom = GetComponent<ColisaoSom>();
         if (meuSom != null) return;
 

@@ -1,12 +1,15 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class AudiosScript : MonoBehaviour
 {
+    // Singleton: uma instância global para todas as cenas.
     public static AudiosScript instancia;
     private const string ChaveVolumeMusica = "audio_volume_musica";
     private const string ChaveVolumeEfeitos = "audio_volume_efeitos";
+    private const float VolumePadrao = 0.2f;
 
     [Header("Fontes de Audio")]
     public AudioSource musicaSource;
@@ -20,6 +23,7 @@ public class AudiosScript : MonoBehaviour
 
     private void Awake()
     {
+        // Garante só um gerenciador de áudio vivo no jogo inteiro.
         if (instancia == null)
         {
             instancia = this;
@@ -43,6 +47,7 @@ public class AudiosScript : MonoBehaviour
 
     private System.Collections.IEnumerator Start()
     {
+        // Aguarda a cena estabilizar para achar sliders criados no mesmo frame.
         yield return null;
         ConfigurarSlidersMenuNaCenaAtual();
     }
@@ -54,6 +59,7 @@ public class AudiosScript : MonoBehaviour
 
     private void QuandoTrocarCena(Scene scene, LoadSceneMode mode)
     {
+        // Exemplo de regra: música toca no menu/planejamento e para no resto.
         if (scene.name != "Menu" && scene.name != "CenaPlanejamento" && musicaSource != null && musicaSource.isPlaying)
         {
             musicaSource.Stop();
@@ -66,6 +72,7 @@ public class AudiosScript : MonoBehaviour
         if (scene.name == "Menu")
             ConfigurarSlidersMenuNaCenaAtual();
 
+        // Reaplica volume ao entrar na cena para manter consistência.
         AplicarVolume();
     }
 
@@ -74,6 +81,7 @@ public class AudiosScript : MonoBehaviour
         if (musicaSource != null)
         {
             string nomeCena = SceneManager.GetActiveScene().name;
+            // No planejamento, a música fica mais baixa para não atrapalhar foco.
             float multiplicadorMusica = (nomeCena == "CenaPlanejamento") ? 0.3f : 1f;
             musicaSource.volume = volumeMusica * multiplicadorMusica;
         }
@@ -84,6 +92,7 @@ public class AudiosScript : MonoBehaviour
 
     public void MudarVolumeMusica(float valor)
     {
+        // Clamp limita o valor entre 0 e 1.
         volumeMusica = Mathf.Clamp01(valor);
         SalvarPreferenciasVolume();
         AplicarVolume();
@@ -96,9 +105,32 @@ public class AudiosScript : MonoBehaviour
         AplicarVolume();
     }
 
+    public static float ObterVolumeEfeitosGlobal()
+    {
+        if (instancia != null)
+            return Mathf.Clamp01(instancia.volumeEfeitos);
+
+        return Mathf.Clamp01(PlayerPrefs.GetFloat(ChaveVolumeEfeitos, VolumePadrao));
+    }
+
+    public static void DefinirVolumeEfeitosGlobal(float valor)
+    {
+        float volume = Mathf.Clamp01(valor);
+
+        if (instancia != null)
+        {
+            instancia.MudarVolumeEfeitos(volume);
+            return;
+        }
+
+        PlayerPrefs.SetFloat(ChaveVolumeEfeitos, volume);
+        PlayerPrefs.Save();
+    }
+
     public void TocarMusica(AudioClip clip)
     {
         if (clip == null || musicaSource == null) return;
+        // Evita reiniciar a mesma música sem necessidade.
         if (musicaSource.clip == clip && musicaSource.isPlaying) return;
 
         musicaSource.clip = clip;
@@ -121,6 +153,7 @@ public class AudiosScript : MonoBehaviour
 
     private void CarregarPreferenciasVolume()
     {
+        // Busca valores salvos no PlayerPrefs; se não existir usa padrão do inspector.
         volumeMusica = Mathf.Clamp01(PlayerPrefs.GetFloat(ChaveVolumeMusica, volumeMusica));
         volumeEfeitos = Mathf.Clamp01(PlayerPrefs.GetFloat(ChaveVolumeEfeitos, volumeEfeitos));
     }
@@ -137,7 +170,8 @@ public class AudiosScript : MonoBehaviour
         Scene cenaAtual = SceneManager.GetActiveScene();
         if (cenaAtual.name != "Menu") return;
 
-        GameObject objMusica = GameObject.Find("Musica");
+        // Liga slider "Musica" à função de mudar volume da música.
+        GameObject objMusica = EncontrarObjetoNaCenaInclusiveInativos("Musica");
         sliderMusicaMenu = objMusica != null ? objMusica.GetComponent<Slider>() : null;
         if (sliderMusicaMenu != null)
         {
@@ -146,7 +180,8 @@ public class AudiosScript : MonoBehaviour
             sliderMusicaMenu.onValueChanged.AddListener(MudarVolumeMusica);
         }
 
-        GameObject objEfeitos = GameObject.Find("Volume");
+        // Liga slider "Volume" à função de mudar volume dos efeitos.
+        GameObject objEfeitos = EncontrarObjetoNaCenaInclusiveInativos("Volume");
         sliderEfeitosMenu = objEfeitos != null ? objEfeitos.GetComponent<Slider>() : null;
         if (sliderEfeitosMenu != null)
         {
@@ -154,5 +189,33 @@ public class AudiosScript : MonoBehaviour
             sliderEfeitosMenu.SetValueWithoutNotify(volumeEfeitos);
             sliderEfeitosMenu.onValueChanged.AddListener(MudarVolumeEfeitos);
         }
+    }
+
+    private static GameObject EncontrarObjetoNaCenaInclusiveInativos(string nome)
+    {
+        if (string.IsNullOrWhiteSpace(nome)) return null;
+
+        GameObject ativo = GameObject.Find(nome);
+        if (ativo != null) return ativo;
+
+        Scene cena = SceneManager.GetActiveScene();
+        if (!cena.IsValid()) return null;
+
+        GameObject[] raizes = cena.GetRootGameObjects();
+        Stack<Transform> pilha = new Stack<Transform>();
+        for (int i = 0; i < raizes.Length; i++)
+            pilha.Push(raizes[i].transform);
+
+        while (pilha.Count > 0)
+        {
+            Transform atual = pilha.Pop();
+            if (atual.name == nome)
+                return atual.gameObject;
+
+            for (int i = 0; i < atual.childCount; i++)
+                pilha.Push(atual.GetChild(i));
+        }
+
+        return null;
     }
 }

@@ -16,6 +16,7 @@ public class MenuMusic : MonoBehaviour
             yield break;
         }
 
+        // Pede para o gerenciador global tocar a música do menu.
         AudiosScript.instancia.TocarMusica(musicaMenu);
     }
 }

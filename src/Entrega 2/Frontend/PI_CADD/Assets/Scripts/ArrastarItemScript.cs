@@ -1,8 +1,12 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using TMPro;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    // Prefab real que será criado quando o jogador arrastar este ícone.
     public GameObject prefabDoItem;
 
     [Header("Escala")]
@@ -33,9 +37,20 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
     private bool tevePosicionamentoValido = false;
     private bool posicionamentoAtualValido = false;
     private Camera cameraPrincipal;
+    private bool exibindoAvisoPosicionamentoInvalido = false;
+
+    private const string NomeObjetoAvisoPosicionamento = "AvisoPosicionamentoInvalido";
+    private const string MensagemAvisoPosicionamento = "<mark=#1B2230CC><b>Não é possível colocar neste local</b></mark>";
+    private static RectTransform avisoRect;
+    private static TextMeshProUGUI avisoTexto;
+    private static RectTransform canvasRectAviso;
+    private static Camera cameraCanvasAviso;
+    private static float tempoOcultarAviso = -1f;
+    private static readonly Vector2 offsetAvisoCursor = new Vector2(18f, 20f);
 
     void Start()
     {
+        // Começa com o estoque cheio e guarda a câmera principal para raycast.
         quantidadeAtual = quantidadeMaxima;
         cameraPrincipal = Camera.main;
     }
@@ -44,11 +59,13 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
     {
         if (!arrastando || objetoArrastando == null) return;
         AtualizarRotacaoDuranteArraste();
+        AtualizarEstadoAvisoPosicionamento();
     }
 
     // Instancia o item e desativa fisica/colisor enquanto esta em arraste.
     public void OnBeginDrag(PointerEventData eventData)
     {
+        // Não cria item se acabou estoque ou se o prefab não foi configurado.
         if (quantidadeAtual <= 0 || prefabDoItem == null) return;
 
         if (cameraPrincipal == null)
@@ -63,7 +80,10 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
         arrastando = true;
         tevePosicionamentoValido = false;
         posicionamentoAtualValido = false;
+        exibindoAvisoPosicionamentoInvalido = false;
+        OcultarAvisoPosicionamento();
 
+        // Cria uma cópia temporária enquanto o mouse está arrastando.
         objetoArrastando = Instantiate(prefabDoItem);
         objetoArrastando.transform.localScale = escalaPadrao;
         objetoArrastando.transform.rotation = Quaternion.Euler(rotacaoInicial);
@@ -71,10 +91,13 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
         Rigidbody rb = objetoArrastando.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.isKinematic = true;
+            if (!rb.isKinematic)
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+            }
             rb.useGravity = false;
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true;
         }
 
         Collider[] cols = objetoArrastando.GetComponentsInChildren<Collider>();
@@ -97,8 +120,14 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
 
         if (Physics.Raycast(ray, out hit))
         {
+            // Impede posicionar em áreas proibidas.
             if (ColliderEstaBloqueadoParaPosicionamento(hit.collider))
+            {
+                posicionamentoAtualValido = false;
+                MostrarAvisoPosicionamento(eventData.position);
+                exibindoAvisoPosicionamentoInvalido = true;
                 return;
+            }
 
             Vector3 pos = hit.point + offsetPosicao;
 
@@ -109,6 +138,13 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
             objetoArrastando.transform.position = pos;
             tevePosicionamentoValido = true;
             posicionamentoAtualValido = true;
+            exibindoAvisoPosicionamentoInvalido = false;
+            OcultarAvisoPosicionamento();
+        }
+        else
+        {
+            exibindoAvisoPosicionamentoInvalido = false;
+            OcultarAvisoPosicionamento();
         }
     }
 
@@ -119,8 +155,10 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
 
         arrastando = false;
 
+        // Se o arraste terminou em posição inválida, cancela o item.
         if (!tevePosicionamentoValido || !posicionamentoAtualValido)
         {
+            OcultarAvisoPosicionamento();
             Destroy(objetoArrastando);
             objetoArrastando = null;
             return;
@@ -131,10 +169,13 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
         Rigidbody rb = objetoArrastando.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
             rb.isKinematic = manterEstatico;
             rb.useGravity = !manterEstatico;
+            if (!rb.isKinematic)
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+            }
         }
 
         Collider[] cols = objetoArrastando.GetComponentsInChildren<Collider>();
@@ -147,14 +188,17 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
         quantidadeAtual = Mathf.Max(0, quantidadeAtual - 1);
         AtualizarUI();
 
+        // Salva no "plano" para reconstruir na cena de perseguição.
         if (registrarNoPlanejamento)
             PlanejamentoRuntimeData.RegistrarItem(prefabDoItem, objetoArrastando.transform);
 
+        OcultarAvisoPosicionamento();
         objetoArrastando = null;
     }
 
     private void AtualizarUI()
     {
+        // Deixa o ícone "apagado" quando não há mais unidades.
         UnityEngine.UI.Image imagem = GetComponent<UnityEngine.UI.Image>();
         if (imagem != null)
             imagem.color = quantidadeAtual <= 0
@@ -174,6 +218,7 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
         if (Mathf.Abs(direcaoRotacao) < 0.001f) return;
 
         float delta = direcaoRotacao * velocidadeRotacaoArraste * Time.deltaTime;
+        // Gira no eixo Y mundial para manter controle previsível ao usuário.
         objetoArrastando.transform.Rotate(0f, delta, 0f, Space.World);
     }
 
@@ -181,5 +226,94 @@ public class ArrastarItemScript : MonoBehaviour, IBeginDragHandler, IDragHandler
     {
         if (colliderAlvo == null) return false;
         return colliderAlvo.GetComponentInParent<BloqueioPosicionamentoArea>() != null;
+    }
+
+    private void AtualizarEstadoAvisoPosicionamento()
+    {
+        if (exibindoAvisoPosicionamentoInvalido)
+            MostrarAvisoPosicionamento(Input.mousePosition);
+    }
+
+    private static void MostrarAvisoPosicionamento(Vector2 posicaoCursorTela)
+    {
+        if (!GarantirReferenciaAviso()) return;
+
+        avisoTexto.text = MensagemAvisoPosicionamento;
+        if (!avisoTexto.gameObject.activeSelf)
+            avisoTexto.gameObject.SetActive(true);
+
+        PosicionarAviso(posicaoCursorTela + offsetAvisoCursor);
+        tempoOcultarAviso = Time.unscaledTime + 0.08f;
+    }
+
+    private static void OcultarAvisoPosicionamento()
+    {
+        if (avisoTexto == null) return;
+        avisoTexto.gameObject.SetActive(false);
+        tempoOcultarAviso = -1f;
+    }
+
+    private static void AtualizarOcultacaoAvisoPorTempo()
+    {
+        if (tempoOcultarAviso < 0f || avisoTexto == null) return;
+        if (Time.unscaledTime < tempoOcultarAviso) return;
+
+        avisoTexto.gameObject.SetActive(false);
+        tempoOcultarAviso = -1f;
+    }
+
+    private static bool GarantirReferenciaAviso()
+    {
+        if (avisoTexto != null && avisoRect != null && canvasRectAviso != null)
+            return true;
+
+        GameObject obj = GameObject.Find(NomeObjetoAvisoPosicionamento);
+        if (obj == null)
+            obj = EncontrarObjetoNaCenaInclusiveInativos(NomeObjetoAvisoPosicionamento);
+        if (obj == null) return false;
+
+        avisoTexto = obj.GetComponent<TextMeshProUGUI>();
+        avisoRect = obj.GetComponent<RectTransform>();
+        Canvas canvas = obj.GetComponentInParent<Canvas>();
+        canvasRectAviso = canvas != null ? canvas.GetComponent<RectTransform>() : null;
+        cameraCanvasAviso = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+
+        return avisoTexto != null && avisoRect != null && canvasRectAviso != null;
+    }
+
+    private static GameObject EncontrarObjetoNaCenaInclusiveInativos(string nome)
+    {
+        Scene cena = SceneManager.GetActiveScene();
+        if (!cena.IsValid()) return null;
+
+        GameObject[] raizes = cena.GetRootGameObjects();
+        Stack<Transform> pilha = new Stack<Transform>();
+        for (int i = 0; i < raizes.Length; i++)
+            pilha.Push(raizes[i].transform);
+
+        while (pilha.Count > 0)
+        {
+            Transform atual = pilha.Pop();
+            if (atual.name == nome)
+                return atual.gameObject;
+
+            for (int i = 0; i < atual.childCount; i++)
+                pilha.Push(atual.GetChild(i));
+        }
+
+        return null;
+    }
+
+    private static void PosicionarAviso(Vector2 posicaoTela)
+    {
+        if (avisoRect == null || canvasRectAviso == null) return;
+
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectAviso, posicaoTela, cameraCanvasAviso, out Vector2 local))
+            avisoRect.anchoredPosition = local;
+    }
+
+    private void LateUpdate()
+    {
+        AtualizarOcultacaoAvisoPorTempo();
     }
 }
