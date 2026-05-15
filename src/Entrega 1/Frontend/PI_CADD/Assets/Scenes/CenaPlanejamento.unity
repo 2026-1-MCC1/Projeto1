@@ -9480,6 +9480,105 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 100000, guid: 921b4e33443ab5943afa3c4841e74cae, type: 3}
   m_PrefabInstance: {fileID: 488367543}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &305799356
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 305799357}
+  - component: {fileID: 305799360}
+  - component: {fileID: 305799359}
+  - component: {fileID: 305799358}
+  m_Layer: 5
+  m_Name: Hidrante
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &305799357
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 305799356}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 614068096}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 2, y: -99}
+  m_SizeDelta: {x: 60, y: 45}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &305799358
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 305799356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca0d2eafc93ad1c4595618bb25de17d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemArrastavel
+  prefabDoItem: {fileID: 6175851496685650480, guid: 163bc45ccdaf14fa285f2a63d10fe937, type: 3}
+  escalaPadrao: {x: 10, y: 10, z: 10}
+  rotacaoInicial: {x: 0, y: 0, z: 0}
+  permitirRotacaoDuranteArraste: 1
+  velocidadeRotacaoArraste: 140
+  teclaRotacionarEsquerda: 113
+  teclaRotacionarDireita: 101
+  offsetPosicao: {x: 0, y: 0, z: 0}
+  quantidadeMaxima: 2
+  registrarNoPlanejamento: 1
+  manterObjetoEstaticoAoSoltar: 1
+--- !u!114 &305799359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 305799356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 279c240ca872f4148afcbb8241699787, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &305799360
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 305799356}
+  m_CullTransparentMesh: 1
 --- !u!1 &305970797 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100000, guid: 993432d7809c9bf489a5a96006618fef, type: 3}
@@ -18445,7 +18544,7 @@ GameObject:
   - component: {fileID: 587407331}
   - component: {fileID: 587407330}
   m_Layer: 5
-  m_Name: Lombada
+  m_Name: Barreira
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18467,7 +18566,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 2, y: 40}
+  m_AnchoredPosition: {x: 2, y: -171}
   m_SizeDelta: {x: 45, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &587407330
@@ -18482,17 +18581,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca0d2eafc93ad1c4595618bb25de17d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemArrastavel
-  prefabDoItem: {fileID: 4721847804579096545, guid: 798ba27a20f0840c3afea8f2d6dccf44, type: 3}
-  escalaPadrao: {x: 6, y: 1, z: 2.5}
-  rotacaoInicial: {x: 0, y: -6, z: 0}
+  prefabDoItem: {fileID: 100000, guid: 689e828b3a6144b0984a46e0c3ff276e, type: 3}
+  escalaPadrao: {x: 2, y: 1, z: 2}
+  rotacaoInicial: {x: 0, y: 0, z: 0}
   permitirRotacaoDuranteArraste: 1
   velocidadeRotacaoArraste: 140
   teclaRotacionarEsquerda: 113
   teclaRotacionarDireita: 101
   offsetPosicao: {x: 0, y: 0, z: 0}
-  quantidadeMaxima: 3
+  quantidadeMaxima: 2
   registrarNoPlanejamento: 1
-  manterObjetoEstaticoAoSoltar: 0
+  manterObjetoEstaticoAoSoltar: 1
 --- !u!114 &587407331
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18506,15 +18605,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.89767885, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 3b11a40e1a5604b998341aecc952b9f3, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -19101,6 +19200,9 @@ RectTransform:
   - {fileID: 1975914455}
   - {fileID: 2147407778}
   - {fileID: 587407329}
+  - {fileID: 305799357}
+  - {fileID: 2113054747}
+  - {fileID: 625156269}
   m_Father: {fileID: 978155621}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -19225,6 +19327,105 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 288b117258616aa4f928ba6f91dc47c3, type: 3}
   m_PrefabInstance: {fileID: 622530991}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &625156268
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 625156269}
+  - component: {fileID: 625156272}
+  - component: {fileID: 625156271}
+  - component: {fileID: 625156270}
+  m_Layer: 5
+  m_Name: Lixeira
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &625156269
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 625156268}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 614068096}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 2, y: -28}
+  m_SizeDelta: {x: 50, y: 45}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &625156270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 625156268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca0d2eafc93ad1c4595618bb25de17d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArrastarItemScript
+  prefabDoItem: {fileID: 8790795766154890520, guid: a7a492c09463b45b58d6b89d3699bd9a, type: 3}
+  escalaPadrao: {x: 10, y: 10, z: 10}
+  rotacaoInicial: {x: 0, y: 0, z: 0}
+  permitirRotacaoDuranteArraste: 1
+  velocidadeRotacaoArraste: 140
+  teclaRotacionarEsquerda: 113
+  teclaRotacionarDireita: 101
+  offsetPosicao: {x: 0, y: 0, z: 0}
+  quantidadeMaxima: 1
+  registrarNoPlanejamento: 1
+  manterObjetoEstaticoAoSoltar: 1
+--- !u!114 &625156271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 625156268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 0ab2e6aa31eac41deae2c711c822c93e, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &625156272
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 625156268}
+  m_CullTransparentMesh: 1
 --- !u!1 &627344065 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100000, guid: 62125825e49febf4a89f76daf85d9ca7, type: 3}
@@ -67170,7 +67371,7 @@ MonoBehaviour:
   velocidadeRotacaoArraste: 140
   teclaRotacionarEsquerda: 113
   teclaRotacionarDireita: 101
-  offsetPosicao: {x: 0, y: 0, z: 0}
+  offsetPosicao: {x: 0, y: 1.2, z: 0}
   quantidadeMaxima: 3
   registrarNoPlanejamento: 1
   manterObjetoEstaticoAoSoltar: 0
@@ -67194,7 +67395,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d228862b4065b134b804d94bd7737e6f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9dccc9bd9390b48cdbc61d8d61d0aa21, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -72550,6 +72751,105 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 0
   m_Center: {x: 0, y: 12.401001, z: 0.124000005}
   m_TimeToStationary: 0
+--- !u!1 &2113054746
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2113054747}
+  - component: {fileID: 2113054750}
+  - component: {fileID: 2113054749}
+  - component: {fileID: 2113054748}
+  m_Layer: 5
+  m_Name: Cone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2113054747
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2113054746}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 614068096}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 2, y: 41}
+  m_SizeDelta: {x: 60, y: 45}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2113054748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2113054746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca0d2eafc93ad1c4595618bb25de17d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemArrastavel
+  prefabDoItem: {fileID: 100000, guid: 594a5e3303ead42878eb560b83ac6793, type: 3}
+  escalaPadrao: {x: 2, y: 2, z: 2}
+  rotacaoInicial: {x: 0, y: 0, z: 0}
+  permitirRotacaoDuranteArraste: 1
+  velocidadeRotacaoArraste: 140
+  teclaRotacionarEsquerda: 113
+  teclaRotacionarDireita: 101
+  offsetPosicao: {x: 0, y: 0, z: 0}
+  quantidadeMaxima: 2
+  registrarNoPlanejamento: 1
+  manterObjetoEstaticoAoSoltar: 0
+--- !u!114 &2113054749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2113054746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: c858d0ea89d4c4edcb31e7a4d5e14bbc, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &2113054750
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2113054746}
+  m_CullTransparentMesh: 1
 --- !u!1001 &2114734741
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -74033,7 +74333,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 2, y: 108}
-  m_SizeDelta: {x: 45, y: 45}
+  m_SizeDelta: {x: 45, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2147407779
 MonoBehaviour:
@@ -74055,9 +74355,9 @@ MonoBehaviour:
   teclaRotacionarEsquerda: 113
   teclaRotacionarDireita: 101
   offsetPosicao: {x: 0, y: 1, z: 0}
-  quantidadeMaxima: 3
+  quantidadeMaxima: 2
   registrarNoPlanejamento: 1
-  manterObjetoEstaticoAoSoltar: 0
+  manterObjetoEstaticoAoSoltar: 1
 --- !u!114 &2147407780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74078,7 +74378,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 58f3ae381bf33fe409455de4b84b558b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8df3d7c1110cb4e69b1d2a3b80c74814, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
